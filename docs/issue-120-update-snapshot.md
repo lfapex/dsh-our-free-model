@@ -47,7 +47,7 @@ apply 重新解析、gcore 回退、坏文件拒绝、安装与回滚。`node --
 真实验证命令：
 
 ```bash
-node scripts/live-audit.mjs --source https://cdn.jsdelivr.net/gh/Ebony-Vinyl/dsh-our-free-model@main/feed/manifest.json
+node scripts/live-audit.mjs --source https://cdn.jsdelivr.net/gh/lfapex/dsh-our-free-model@main/feed/manifest.json
 ```
 
 日志中的实际清单 URL 为 `@fbc3b9b55686fe169bd1fd26bb9211b9d3008d9e`，
@@ -76,7 +76,7 @@ NOTICE 跳转到不可达 raw，仅刷新缓存不能保证过渡成功。本次
 - 首轮下载 38/40 后失败：`client.js` 与 `adapter/dsh-llm.d.ts` 的连接失败。
   暂存目录清理，未进入安装，没有版本不一致或恢复待办。该失败记录完整保留。
 - 重试通过，耗时约 23.7 秒；实际清单源固定为
-  `https://cdn.jsdelivr.net/gh/Ebony-Vinyl/dsh-our-free-model@fbc3b9b55686fe169bd1fd26bb9211b9d3008d9e/feed/manifest.json`。
+  `https://cdn.jsdelivr.net/gh/lfapex/dsh-our-free-model@fbc3b9b55686fe169bd1fd26bb9211b9d3008d9e/feed/manifest.json`。
   raw 清单连接超时后使用同 SHA 的 CDN；NOTICE 等主 CDN 连接失败后使用固定镜像。
 - 宿主完成 40 文件、4008049 字节下载、验签、暂存、备份、安装及热重载。
   激活返回 `ok:true`、`version:2.0.0`、`fibers:1`；generation 1→2。

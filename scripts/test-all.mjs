@@ -41,7 +41,6 @@ const suites = [
   ['heatmap', 'heatmap-test.mjs', []],
   ['trust', 'trust-test.mjs', []],
   ['sanitize', 'sanitize-test.mjs', []],
-  ['feed', 'feed-test.mjs', []],
   ['updater', 'updater-test.mjs', []],
   ['upgrade-ui', 'upgrade-ui-test.mjs', []],
   ['forward', 'forward-test.mjs', []],

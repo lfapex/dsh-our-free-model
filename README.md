@@ -40,7 +40,6 @@
 - **上游来源公开透明**——免费车道来源为 OpenCode 的 Zen 网关（https://opencode.ai），Kilo 渠道来源为 Kilo AI 的公共网关（https://kilo.ai），均直连、不经任何第三方中转。请求由谁处理、数据发往何处，见「上游是哪些源」与「免责声明」。
 - **清单跟随上游**——模型集合、上下文长度与能力在每次刷新时向上游重新拉取，插件内不保存静态快照。
 - **选择器只广播可用的模型**——上游清单已声明但网关明确拒绝路由的模型（返回 `Model is unavailable`、或 404 找不到该 id）从下拉框移除，仅在设置页保留记录并注明拒因；网关自身故障（5xx）、配额限制（429）、超时与断网不属于对模型的判定，一律保持可达；被地区策略拦截的模型归入 region-limited 分组。整轮探测全部被拒时同样保留，选择器不会为空。
-- **公告中心 + 实时推送**——仓库维护者在仓库中编辑 JSON 并推送后，所有已安装实例最迟在一个轮询周期内收到；正文为白名单约束下的 HTML，支持图文排版；`urgent` 级别触发全屏弹窗；可选系统级通知。
 - **应用内升级**——设置页一键升级：下载 → SHA-256 校验 → 备份 → 原子替换 → 校验回读 → 热重载，任一步失败自动回滚至上一版本。
 - **热重载**——升级与代码变更即时生效，无需重启应用；也可在设置页手动触发，或启用文件监视自动重载。
 - **按响应体形状判定流式响应**——网关在高负载下会以 `application/json` 的 content-type 返回完整的 SSE 帧序列。插件按响应体形状判定，并将已嗅探的字节重新注入流，既不会导致整轮失败，也不会因 header 与实际内容不符而将可用模型判为不可用。
@@ -49,10 +48,11 @@
 - **用量看板，数据全部留在本机**——Token 热力图、总量曲线（支持总计与单模型视图）、输出速度与首字延迟逐次采样。不上传任何数据。
 - **OpenAI 兼容转发端口**——本机其它工具通过 base URL 与 Key 即可调用这些模型。
 - **EAC 渠道（桌面端专属）**——在 DeepSeek Harness 桌面端与 DSHEAC AIO 桌面端中自动解锁一条协付通道，模型以 EAC 前缀显示（如 EAC DeepSeek V4.1 Flash）；凭据加密密封，由宿主指纹闸门把守；该渠道在服务器侧校验 GitHub 授权（登录并 star 本仓库）后才放行对话；在命令行及其它宿主中该通道完全不存在。详见「EAC 渠道」。
+- **EAC 渠道可接入自有中转站**——设置页「EAC 模型 → 自定义中转站」填入任意 OpenAI 兼容中转站的 Base URL 与 API Key 即可；启用后 EAC 全部改走中转站，不再需要 GitHub 登录与 star，模型清单以中转站 `/models` 返回为准。Base URL 强制 https（`127.0.0.1` / `localhost` 允许 http），拒绝内嵌账号密码的 URL；API Key 按明文写入 settings.json，但任何接口只回报 `hasKey`，页面永远拿不到明文，留空保存表示不修改。
 - **Kilo 渠道（免密免费池）**——内置 Kilo AI 公共网关的免费模型池（`isFree` 清单实时拉取，含 `kilo-auto/free` 自动路由），无需任何账号或 Key；模型卡带 Kilo 徽章。思考强度与 EAC 渠道同款：模型自身的档位菜单（Off / Low / Medium / High，默认 High），经网关统一的 `reasoning` 参数真实下发——Off 已逐家族实测将思考归零（nemotron、ling、dots、poolside、apodex、cohere）；stepfun 与 liquid 端点强制思考（对关闭请求返回 400）、两个自动路由不透传关闭，这些模型的菜单不含 Off 档。该池由上游免费提供，上游会在其模型卡中声明 prompt 可能被记录用于改进服务——请勿发送敏感内容，详见「免责声明」。
 - **接口具备鉴权围栏**——插件 HTTP 路由优先级高于内核 `/api`，因此内置与内核一致的信任检查（优先复用 composition 的 connection 服务，缺失时退回结构化围栏）。
 - **十三个白嫖渠道，一体接入**——CodeArts（华为云）、CodeBuddy / WorkBuddy（腾讯）、LobsterAI（有道）、Qoder / Qoder 中国版（阿里系）、TRAE（字节）、Cline、Loomy（讯飞）、Raccoon（商汤）、MiniMax Code、ZCode（智谱）、Gemini（Google Code Assist）十一个账号渠道开箱即用，外加 Kilo 免费车道与原匿名免费通道；OpenCode 账号渠道在本插件中默认停用。各渠道的登录流程、账号池、每日积分领取、模型黑名单与其本地 OpenAI 网关（Chat Completions + Responses，默认 `127.0.0.1:8326`）原样挂载与运行；凭据只写入宿主凭据库，浏览器永远拿不到明文。
-- **六页毛玻璃界面**——设置页重排为顶部导航的六个页面：**免费模型**（鱼缸水位 = 可用模型占比）、**EAC 模型**（鱼缸水位 = 协付池压力）、**白嫖模型接入**（十三张渠道卡：登录、账号、模型开关、一键领取积分）、**数据看板**（今日/全部 Token 消耗、平均生成速度、缓存命中率、成功率，账号透视与模型性能表、最近请求总览）、**运行日志**（逐请求明细：结果、耗时、首字、速度、Token 细分，失败原因悬停可见）与**网关设置**（网关开关/端点/密钥；局域网转发中继：监听地址、端口与独立中继密钥）。每页都有直达 GitHub 仓库的 Star 按钮。
+- **六页毛玻璃界面**——设置页重排为顶部导航的六个页面：**免费模型**（鱼缸水位 = 可用模型占比）、**EAC 模型**（鱼缸水位 = 协付池压力）、**白嫖模型接入**（十三张渠道卡：登录、账号、模型开关、一键领取积分）、**数据看板**（今日/全部 Token 消耗、平均生成速度、缓存命中率、成功率，账号透视与模型性能表、最近请求总览）、**运行日志**（逐请求明细：结果、耗时、首字、速度、Token 细分，失败原因悬停可见）与**网关设置**（网关开关/端点/密钥；局域网转发中继：监听地址、端口与独立中继密钥）。
 - **局域网转发中继**——渠道网关本身只监听本机（上游的安全选择）；本插件提供自己的转发门：调用方用插件签发与轮换的中继密钥，转发跳由宿主换用网关凭据（凭据不出宿主进程），仅放行 `/v1/*` 模型接口并带环路保护。
 
 ## 你会看到什么
@@ -71,12 +71,11 @@
 
 - **模型清单**——各模型的可用性、是否支持视觉、上下文窗口、最长输出、各思考档位实际下发的输出上限、实测首字延迟，以及单次调用基准测试按钮。
 - **EAC 渠道授权**——一键发起 GitHub 登录（自动打开浏览器，无需复制粘贴）、显示登录名与 star 校验状态、重新检查、退出登录；未授权时模型卡带锁标记。免费车道的模型不受影响。
-- **公告中心**——仓库维护者推送的公告流：未读计数、紧急徽章、单条/全部标记已读、检查新公告按钮、系统通知开关。公告正文按白名单渲染 HTML。
+- **自定义中转站**——把 EAC 车道指向自有的 OpenAI 兼容中转站：启用开关、Base URL、API Key，保存后立即生效。启用期间「EAC 渠道授权」区自动收起 GitHub 登录入口。
 - **用量看板**——总览计数、17 周 Token 热力图、总量曲线（Token / 请求数切换，总计与单模型切换）、速度迷你图、按模型汇总表。
 - **本地转发**——开关、监听地址与端口、复制 base URL、显示 / 复制 / 轮换 API Key，并提供可直接执行的 curl 示例。
 - **插件设置**——总开关、是否展示地区受限模型、探测间隔、默认输出上限，以及当前探测到的出口 IP 与国家。
 - **插件升级**——当前/最新版本、检查更新、一键升级（含进度与失败原因）、最近一次升级历史、热重载按钮与文件监视开关。
-- **首次启动公告**——分 5 页（前言 / 模型清单 / 使用步骤 / 功能介绍 / 公告与升级），确认一次后不再弹出，除非文案版本号被提升。
 
 ## 安装
 
@@ -115,7 +114,7 @@ patch 层会自动生效；两处同时注册将报错 duplicate loader entry id
 
 插件由整合包（EAC 整合包、Mojobox 等）安装时，更新时机与文件字节由安装方控制：
 安装时将 bundle config 设为 distribution: 'managed'（或向 settings.json 写入
-同一字段），插件的应用内升级、公告 feed 与热重载即全部停用——两个写入方同时操作
+同一字段），插件的应用内升级与热重载即全部停用——两个写入方同时操作
 同一安装目录只会导致目录损坏；模型 lane 不受影响。相关验收见
 scripts/offline-test.mjs；目录就绪记录（manifest 0.15 / 出处 / 许可 / 完整性）
 位于 catalog/ 下。
@@ -164,7 +163,7 @@ git 执行 `git ls-remote`。若本机 git 配置了 `insteadOf` 重写（常见
 文件之前失败。处理方式二选一：
 
 - 修正本机 git 配置（`git config --global --get-regexp insteadof` 查看重写规则），保证终端里
-  `git ls-remote https://github.com/Ebony-Vinyl/dsh-our-free-model.git` 能成功；
+  `git ls-remote https://github.com/lfapex/dsh-our-free-model.git` 能成功；
 - 改用本地安装：从 Releases 下载发布包解压后 `dsh plugin add <解压目录>`，绕开 git 解析。
 
 **安装失败：`profile "desktop" is managed exclusively by the Electron application`**
@@ -205,11 +204,6 @@ reasoning、reasoning_content、reasoning_text 三个字段识别——同一段
 **重新核对地区**：点击"重新探测可用性"，将按当前出口重新执行探测。切换 VPN 状态后再执行一次，
 地区受限模型会在两个分组之间自动迁移。
 
-**接收公告**：全自动。仓库维护者推送新公告后，运行中的插件在一个轮询周期内（默认
-30 分钟，也可在公告中心点击"检查新公告"立即拉取）收到通知：普通公告弹出 toast，
-`urgent` 级别直接触发全屏弹窗，两者均会进入公告中心并保留未读标记。如需同时接收
-系统级通知，在公告中心点击"开启系统通知"。
-
 **升级插件**：设置 → Our Free Model → 插件升级 → 检查更新 → 立即升级。全流程
 在应用内完成（下载 → 校验 → 备份 → 替换 → 热重载），无需重新安装，也无需
 重启应用。升级失败会自动回滚至上一版本并给出失败原因。
@@ -218,7 +212,7 @@ reasoning、reasoning_content、reasoning_text 三个字段识别——同一段
 
 ```
 index.js Host 半身：适配器注册、清单与可用性探测、设置/用量存储、
- webServer 路由、转发端口生命周期、公告/升级/热重载接线
+ webServer 路由、转发端口生命周期、升级/热重载接线
 adapter/ 内核接缝：全包唯一允许 import @deepseek-ai/* 的位置
  （kernel.js：attribution User-Agent，失败降级为字面量）
 src/adapter.js 结构性 LlmAdapter：providerInfo、listModels、resolveModel、
@@ -230,8 +224,7 @@ src/messages.js harness 消息 -> 各线协议形态，外加工具调用配对�
 src/effort.js 思考档位 -> 输出预算
 src/forward.js 独立的 OpenAI 兼容监听器
 src/trust.js 插件路由的请求信任围栏（connection 服务桥 + 结构化围栏）
-src/push.js SSE 推送枢纽：公告到达、更新可用、升级完成
-src/feed.js 远程公告 feed：多源拉取、校验、缓存、到达检测
+src/push.js SSE 推送枢纽：更新可用、升级完成
 src/updater.js 应用内升级：清单校验、SHA-256 分级校验、备份、原子替换、回滚
 src/reload.js 自热重载：镜像内核 HMR 的缓存清除 + 重导入 + 重注册 + 回滚序列
 client.js 浏览器半身：手写 ModuleLoader bundle，无构建步骤
@@ -414,7 +407,9 @@ cordis context 上、真实内核则指将插件装入 dsh 后启动。三者的
 | usage 计数正确 | 离线 retry-safety-test.mjs | 缺少 prompt_tokens_details 的 usage 不再使 inputTokens 变为 NaN；转发端口按 prompt_tokens/completion_tokens 上报，被网关拒绝的转发请求返回错误，不返回空 200。Messages 线上 message_delta 仅携带 output 一侧，旧写法会覆盖整条 usage 记录、使每个 Claude 回合的 prompt tokens 记为 0；当前改为按字段合并 |
 | 本轮复审：5xx 的原因短语不再被当作判定（issue #3 的同类回归） | 离线 sniff-test.mjs + 反向验证 | stateOf 的消息兜底匹配不检查状态码，而反向代理返回 503 的标准原因短语正是 Service Unavailable——过载的网关因此被判定为"点名拒绝该模型"，模型逐个从选择器中消失（issue #3 修复的代价从消息兜底路径再度引入）。当前该兜底仅在状态码无法代表网关意图时才生效；响应体中点名模型的（含 5xx 下的 type: ModelError）仍判定为拒绝。新增 4 条断言，还原旧实现后其中 2 条立即失败 |
 
-### 上一轮：v1.1.2（公告、升级、热重载与信任围栏）
+### 上一轮：v1.1.2（升级、热重载与信任围栏）
+
+> 本节记录的是 v1.1.2 当时的实测结果，其中的公告 feed / 公告中心 / 系统通知已在后续版本整块移除，其余条目仍为当前行为的历史验证。
 
 全部新能力均经过实际操作验证，包括在浏览器与 DSHEAC AIO 桌面窗口中的逐项点击：
 
@@ -461,7 +456,7 @@ cordis context 上、真实内核则指将插件装入 dsh 后启动。三者的
 
 升级与热重载的信任边界：应用内升级的信任根自 v1.3.2 起为插件内 pin 的 Ed25519 公钥，不再依赖"HTTPS 到仓库"——清单必须携带发布私钥签名方可安装，镜像（含 jsDelivr）被投毒只会导致升级失败，不会执行其中的代码。持有发布私钥者可推送任意代码，这在信任模型上与"可推送仓库者"等同，但将"仓库账号被接管"从直接 RCE 降级为"所有用户升级失败"。文件层面的完整性由签名与 SHA-256 清单双重保障，代码层面的安全由客户端白名单 HTML 渲染器与宿主的插件隔离承担。
 
-DSHEAC AIO 的 WebView2 权限策略可能拒绝通知授权（本机实测 denied）。被拒时公告中心的开关会如实提示；通过纯浏览器访问 dsh web 不受影响。
+DSHEAC AIO 的 WebView2 权限策略可能拒绝通知授权（本机实测 denied）。被拒时通知相关的界面如实提示；通过纯浏览器访问 dsh web 不受影响。
 
 转发端口不要求固定占用 18899。端口被占用时监听顺延至下一个可用端口，并将实际端口写回设置（设置页给出提示）。此为有意设计：宁可更换端口，也不让本地转发静默停摆；占用方由操作系统错误码决定，插件仅如实转述。
 
@@ -474,9 +469,8 @@ npm test # 以下全部离线套件 + 清单一致性检查，一条命令
 node scripts/client-lint.mjs # 浏览器半身：文案键与样式键双向覆盖、bundle 可执行
 node scripts/retry-safety-test.mjs # 交给内核的失败对象、退避策略与 usage 计数必须可持久化
 node scripts/speed-stat-test.mjs # 任何一次调用都不得被平均成虚假的 tok/s
-node scripts/sanitize-test.mjs # 公告 HTML 白名单渲染器：XSS 语料必须全部被丢弃
+node scripts/sanitize-test.mjs # HTML 白名单渲染器（升级说明等可信 HTML）：XSS 语料必须全部被丢弃
 node scripts/trust-test.mjs # 插件路由的请求信任围栏
-node scripts/feed-test.mjs # 公告 feed：解析、故障转移、缓存、到达检测（本地 HTTP 服务器）
 node scripts/updater-test.mjs # 应用内升级：清单校验、SHA-256、备份/回滚（本地 HTTP 服务器）
 node scripts/effort-test.mjs # 思考档位 = 实际下发的 max_tokens，且与留痕档位一致
 node scripts/sniff-test.mjs # 200 响应按 body 形状分流：SSE 帧、单包 JSON、空 body、跨 chunk 多字节、中途 abort
@@ -539,7 +533,7 @@ DeepSeek Harness 桌面端（Electron 壳）：内核自身提供的 desktop pro
 | --- | --- | --- |
 | 推理请求 | POST …/zen/v1/chat/completions、…/zen/v1/responses、…/zen/v1/messages（按模型分流，见 endpointFor） | Authorization: Bearer public——该车道本身即为公开免密额度，插件中不含任何属于你的密钥 |
 | 模型清单 | GET …/zen/v1/models | 同上 |
-| 公告与升级清单 | 本仓库的 feed/\*.json：raw.githubusercontent.com 优先，cdn.jsdelivr.net 兜底 | 无 |
+| 升级清单 | 本仓库的 feed/manifest.json：raw.githubusercontent.com 优先，cdn.jsdelivr.net 兜底 | 无（清单自带 Ed25519 签名） |
 | 出口地区判定 | api.ipify.org / ipinfo.io / ipapi.co，仅用于读取本机公网 IP 与国家码 | 无 |
 
 **Kilo 渠道：Kilo AI 的公共网关，https://api.kilo.ai/api/gateway**（2026-10-06 接入）。
@@ -579,11 +573,13 @@ DeepSeek Harness 桌面端（Electron 壳）：内核自身提供的 desktop pro
 
 插件的 HTTP 路由带请求信任围栏（自 v1.1 修复）：插件的 /api/our-free-model 前缀在 webServer 的最长前缀分发下优先于内核 /api，曾绕过内核鉴权。当前每个请求先经由 composition 的 connection 服务准入（与内核 /api 完全同级的 cookie/token 校验）；connection 缺失的 composition 退回结构化围栏——loopback Host、拒绝跨站 sec-fetch-site、Origin/Referer 必须与 Host 同源同端口，Host 缺失或为空也拒绝（fail closed，不回退至 socket 本地地址）。实测结果：异源 Host/Origin 返回 403，无 cookie 的回环请求返回 401。connection 为逐请求获取，因为浏览器半身要到插件加载之后才将其 provide 出来——若在 apply 时以快照方式读取一次，围栏会在整个进程周期内退化为结构化那一层（本轮将该读取改回快照后，picker-test 的 401 断言立即失败）。
 
-公告 HTML 在客户端经严格白名单渲染：scripts/sanitize-test.mjs 使用 XSS 语料（脚本注入、事件属性、javascript:/data: URL、iframe/svg/form、样式注入、畸形标签）验证全部被丢弃；不经过任何 innerHTML sink。公告源的 feedUrl 可被用户指向任意 URL，因此渲染器按不可信输入处理。
+升级说明等 HTML 在客户端经严格白名单渲染：scripts/sanitize-test.mjs 使用 XSS 语料（脚本注入、事件属性、javascript:/data: URL、iframe/svg/form、样式注入、畸形标签）验证全部被丢弃；不经过任何 innerHTML sink。渲染器按不可信输入处理。
 
 应用内升级的完整性链（v1.3.2 加签）：清单 Ed25519 签名验证（公钥 pin 在 src/updater.js，无签名或验签失败的清单直接拒绝，未签名镜像不会被安装）→ 清单校验（semver、路径逃逸、哈希格式、base 必须为清单相对路径）→ 下载时逐文件校验 SHA-256 与字节数 → staging 回读校验 → 安装后回读校验 → 任一步失败即恢复备份；安装前强制重新拉取清单，杜绝陈旧清单。文件与代码边界见已知边界一节。
 
-更新通道与 feedUrl 彻底解耦（v1.3.2）：feedUrl 仅重定向公告 feed，永不再重定向升级清单——此前一个设置项即可将升级源指向任意服务器并配以自配平的哈希，等同于将"修改一个设置值"升级为"在宿主进程中执行任意代码"。公告 override 本身也收紧为仅 https（回环 http 除外，本机镜像与测试仍可用）且不得内嵌凭据。目标域不受限制：任何 https 地址均可作为 feedUrl，插件按 feedPollMinutes 的间隔轮询——因此在不含 connection 服务的 composition 中（见上文鉴权说明），能够修改设置的本机调用者可让进程持续请求任意外部地址。这与插件的其余外联一样按"设置即信任"对待：能够修改 settings.json 的人本来就能安装代码。
+更新通道不再可被设置改写（v1.3.2）：升级清单的来源写死在插件内，settings.json 里的任何字段都不能改指它——此前一个设置项即可将升级源指向任意服务器并配以自配平的哈希，等同于将"修改一个设置值"升级为"在宿主进程中执行任意代码"。公告 feed 与其 feedUrl 设置已随公告系统一并移除，因此这条边界现在只剩升级清单一侧，由 Ed25519 签名而非设置项兜底。
+
+EAC 自定义中转站是按"设置即信任"对待的：能修改 settings.json（因而能写入 eacGateway.baseUrl）的人，本来就能安装代码，因此该 Base URL 不做目标域白名单。但输入侧收得很紧——强制 https（回环 http 除外，本机自测中转仍可用），不得内嵌 `user:pass@`，长度上限 2048，API Key 上限 4096；且该密钥只写入 0600 的 settings.json，任何 HTTP 接口只回报 `hasKey` 布尔量，明文永不出本机进程。
 
 转发监听仅绑回环地址，且按解析结果绑定（v1.3.2）：localhost 这类主机名先经 dns.lookup 解析、全部结果均为回环才放行，绑定使用解析出的 IP——当 hosts 文件或企业 DNS 将 localhost 指向可路由接口时，校验与监听不再各自为政。
 

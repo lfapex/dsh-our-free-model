@@ -29,7 +29,7 @@ import fs from 'node:fs'
 import path from 'node:path'
 import crypto from 'node:crypto'
 
-const REPO = 'Ebony-Vinyl/dsh-our-free-model'
+const REPO = 'lfapex/dsh-our-free-model'
 
 /** Discovery locations, in preference order. Official mutable refs are resolved
  *  to a full commit before fetching either the manifest or its files. Mirrors
@@ -51,7 +51,7 @@ export const DEFAULT_MANIFEST_SOURCES = [
  * itself — whoever forges the manifest forges the hashes. This key is the step
  * the forger cannot take.
  */
-export const PINNED_MANIFEST_PUBLIC_KEY = 'MCowBQYDK2VwAyEAeLdSVwYFyazc2PIBC0oLsvo4LghGEQz9iXIl3CqRuXI='
+export const PINNED_MANIFEST_PUBLIC_KEY = 'MCowBQYDK2VwAyEA0givNOMh/SXZw+6eOgyjRV1odxfkA8BnvmBZRrXY7JA='
 
 /** The manifest fields a signature covers, in canonical (sorted-key) JSON. */
 const SIGNED_FIELDS = ['version', 'base', 'publishedAt', 'notes', 'files', 'minSupported']
@@ -752,11 +752,10 @@ export class PluginUpdater {
     }
   }
 
-  /** Manifest sources. Deliberately immune to the `feedUrl` setting: an update
-   *  source is a code source, and a settings value pointing it anywhere else is
-   *  the one-step path from "wrote a config field" to "executed arbitrary code
-   *  in the host process". Announcements may be mirrored by their user; the
-   *  update channel may not. */
+  /** Manifest sources. Deliberately fixed to the package's own repository: an
+   *  update source is a code source, and a settings value pointing it anywhere
+   *  else is the one-step path from "wrote a config field" to "executed
+   *  arbitrary code in the host process". */
   sources() {
     return this.deps.defaultSources
   }

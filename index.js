@@ -6,13 +6,11 @@
  * browser-facing JSON API the settings page reads, and the OpenAI-compatible
  * forward listener.
  *
- * On top of the model lane the plugin owns a small distribution channel of its
- * own: a remote announcement feed the repository owner publishes by pushing a
- * JSON document, an in-app self-updater that verifies and installs new releases
- * from the same repository, and a self hot-reload that swaps the running plugin
- * for the code now on disk. All three report to the browser over one
- * Server-Sent-Events route, because the kernel has no notification service and
- * the settings page should not have to poll.
+ * On top of the model lane the plugin owns an in-app self-updater that verifies
+ * and installs new releases from its repository, and a self hot-reload that
+ * swaps the running plugin for the code now on disk. Both report to the browser
+ * over one Server-Sent-Events route, because the kernel has no notification
+ * service and the settings page should not have to poll.
  *
  * Every harness facility is reached through `ctx`, and only the one the plugin
  * cannot exist without is declared in `inject`, so a composition that omits the
@@ -45,7 +43,6 @@ import { unlockSealedLane } from './src/vault.js'
 import { mintRequestId, sessionForConversation } from './src/upstream.js'
 import { DEFAULT_LEVEL, budgetLadder } from './src/effort.js'
 import { windowTokens } from './src/stream.js'
-import { AnnouncementFeed } from './src/feed.js'
 import { PluginUpdater } from './src/updater.js'
 import { selfReload, watchPackage, isReloading } from './src/reload.js'
 import { createPushHub } from './src/push.js'
@@ -130,13 +127,13 @@ export const ANNOUNCEMENT_VERSION = '2026-09-25.1'
 /**
  * Who owns the plugin's bytes — the distribution mode:
  *
- * - `self` (default): the plugin updates itself from its repository, publishes
- *   its announcement feed, and hot-reloads, exactly as before.
+ * - `self` (default): the plugin updates itself from its repository and
+ *   hot-reloads, exactly as before.
  * - `managed`: the plugin arrived through a distribution pack (an EAC
  *   integration pack, a Mojobox install). The pack manager owns the bytes now,
- *   so the in-app updater, the announcement channel and the hot reload stand
- *   down — two writers to one installed directory is a corrupted install. The
- *   model lane is untouched; this is about who ships the code, not what it does.
+ *   so the in-app updater and the hot reload stand down — two writers to one
+ *   installed directory is a corrupted install. The model lane is untouched;
+ *   this is about who ships the code, not what it does.
  *
  * `config.distribution` (what a pack's bundle patch passes) outranks the
  * settings file, and the settings API never accepts the field back, so an
@@ -201,20 +198,53 @@ export function apply(ctx, config) {
 
   // ── the co-paid lane ────────────────────────────────────────────────────────
   /**
-   * The sealed lane is invisible until the host gate passes and the seal opens,
-   * both re-checked per use. Its roster persists under `sealIds` in the catalog
-   * store so a desktop restart offline still shows what it served last. A host
-   * the gate refuses never reads that list — `sealedCatalog` starts and stays
-   * empty, and no entry, request, or error of the lane is observable — but the
-   * persisted list survives the refusal, and the refusal itself is logged, so
-   * an empty EAC group has a reason in the log instead of silence.
+   * The co-paid lane's roster, and the credential behind it.
+   *
+   * Two ways in: the sealed lane, invisible until the host gate passes and the
+   * seal opens (both re-checked per use), or a custom relay the user configured
+   * in `settings.eacGateway` — no gate, no seal, just a Base URL and a key.
+   * `laneCredentialOf` picks the relay first whenever it is enabled and
+   * complete, and only falls back to the seal; everything downstream (roster
+   * refresh, adapter turns, auth surface) reads that one resolver, so there is a
+   * single answer to "which lane am I on".
+   *
+   * Either way the roster persists under `sealIds` in the catalog store so a
+   * restart offline still shows what it served last. A host the gate refuses
+   * with no relay configured never reads that list — `sealedCatalog` starts and
+   * stays empty, and no entry, request, or error of the lane is observable —
+   * but the persisted list survives the refusal, and the refusal itself is
+   * logged, so an empty EAC group has a reason in the log instead of silence.
    */
   const profileNameOf = () => {
     const context = typeof ctx.get === 'function' ? ctx.get('profileContext') : undefined
     return typeof context?.name === 'string' ? context.name : undefined
   }
   const sealedCredentialOf = () => unlockSealedLane({ profileName: profileNameOf() })
-  let sealedCatalog = sealedCredentialOf() === null ? [] : buildEacCatalog(catalogStore.get().sealIds ?? [])
+  /**
+   * The co-paid lane's credential, custom relay first.
+   *
+   * `eacGateway` in the settings file points the lane at any OpenAI-compatible
+   * relay the user operates (`enabled` + `baseUrl` + `apiKey`). When it is on
+   * and complete, it *replaces* the sealed credential wholesale — the lane runs
+   * in the `direct` mode src/eac.js already speaks: one bearer credential
+   * straight to the relay, no signing secret, no GitHub gate, no host
+   * restriction, and nothing of the seal's material ever leaves the package.
+   * The GitHub authorization surface (`eacAuth*`) reads this same resolver, so
+   * a custom relay simply reports "no gate" and the pages hide the login UI.
+   */
+  function laneCredentialOf() {
+    const gateway = settings.get().eacGateway
+    if (gateway?.enabled === true) {
+      const base = typeof gateway.baseUrl === 'string' ? gateway.baseUrl.trim().replace(/\/+$/, '') : ''
+      const apiKey = typeof gateway.apiKey === 'string' ? gateway.apiKey.trim() : ''
+      if (base !== '' && apiKey !== '') return { mode: 'direct', base, apiKey, source: 'custom' }
+    }
+    const sealed = sealedCredentialOf()
+    return sealed === null ? null : { ...sealed, source: 'sealed' }
+  }
+  // Custom relay counts as a lane credential: a relay configured at boot must show
+  // its models on the very first paint, not after the first listing round.
+  let sealedCatalog = laneCredentialOf() === null ? [] : buildEacCatalog(catalogStore.get().sealIds ?? [])
   // The Kilo channel needs no credential and no host gate, so its roster loads
   // from the persisted cache before the first listing round ever runs.
   let kiloCatalog = reviveKiloCatalog(catalogStore.get().kiloRows)
@@ -242,7 +272,7 @@ export function apply(ctx, config) {
   let poolCache = { at: 0, data: null }
   async function fetchPoolSnapshot() {
     if (poolCache.data !== null && Date.now() - poolCache.at < 30_000) return poolCache.data
-    const credential = sealedCredentialOf()
+    const credential = laneCredentialOf()
     if (credential === null || credential.mode !== 'worker') throw poolError('no-lane')
     const gatewayRoot = credential.base.replace(/\/v1\/?$/, '')
     const controller = new AbortController()
@@ -278,7 +308,7 @@ export function apply(ctx, config) {
   const eacAuthCache = { at: 0, data: { available: false, authorized: false, login: '' } }
   const eacAuthRootOf = credential => credential.base.replace(/\/v1\/?$/, '')
   async function eacAuthStatus() {
-    const credential = sealedCredentialOf()
+    const credential = laneCredentialOf()
     if (credential === null || credential.mode !== 'worker') {
       return { available: false, authorized: false, login: '', mode: credential?.mode ?? null }
     }
@@ -324,7 +354,7 @@ export function apply(ctx, config) {
     }
   }
   const eacLoginPoller = createEacLoginPoller({
-    credentialOf: sealedCredentialOf, fetch: directFetch,
+    credentialOf: laneCredentialOf, fetch: directFetch,
     readUser: readEacUser, writeUser: writeEacUser,
     onSaved: saved => {
       eacAuthCache.data = { ...eacAuthCache.data, available: true, local: true, authorized: true, login: saved.login, avatar: saved.avatar, savedAt: saved.savedAt }
@@ -337,7 +367,7 @@ export function apply(ctx, config) {
     cached: () => eacAuthCache.data,
     /** Begin a login: mint the link code, hand the URL to the system browser. */
     async start() {
-      const credential = sealedCredentialOf()
+      const credential = laneCredentialOf()
       if (credential === null || credential.mode !== 'worker') return { error: 'no-lane' }
       const link = crypto.randomBytes(24).toString('base64url')
       const url = `${eacAuthRootOf(credential)}/auth/github/start?link=${link}`
@@ -353,7 +383,7 @@ export function apply(ctx, config) {
      * user logged in on this machine. */
     async logout() {
       eacLoginPoller.reset()
-      const credential = sealedCredentialOf()
+      const credential = laneCredentialOf()
       const local = readEacUser()
       if (local !== null && credential !== null && credential.mode === 'worker') {
         try {
@@ -372,30 +402,6 @@ export function apply(ctx, config) {
 
   // ── push channel ────────────────────────────────────────────────────────────
   const push = createPushHub({ logger })
-
-  /** Set of announcement ids the user has acknowledged. */
-  const ackedIds = () => new Set(Array.isArray(settings.get().announcementsAcked) ? settings.get().announcementsAcked : [])
-
-  const feed = new AnnouncementFeed({
-    settings: () => settings.get(),
-    cacheFile: path.join(dataDir, 'feed.json'),
-    onArrival: items => {
-      push.emit('announcements', { items, unread: feedView().unread })
-      refreshUpdatePush?.()
-    },
-    log: message => logger.info?.(message),
-  })
-  feed.load()
-
-  /**
-   * The announcement view the settings page reads. A managed install polls no
-   * feed and caches no copy — the pack speaks for the plugin — so its view is a
-   * fixed empty one that names its source honestly.
-   */
-  const MANAGED_FEED_VIEW = { items: [], unread: 0, fetchedAt: 0, source: 'managed', error: '', lastError: '' }
-  function feedView() {
-    return managed ? MANAGED_FEED_VIEW : feed.view({ ackedIds: ackedIds() })
-  }
 
   const updater = new PluginUpdater({
     pkgDir: PKG_DIR,
@@ -461,7 +467,10 @@ export function apply(ctx, config) {
   const adapter = new FreeModelAdapter({
     state,
     resolveImage: imageResolver(ctx, logger),
-    sealedCredential: sealedCredentialOf,
+    // The lane resolver, not the sealed-only one: with a custom relay configured
+    // the turns have to ride that relay, and handing the adapter the sealed
+    // credential would silently ignore it.
+    sealedCredential: laneCredentialOf,
     recordUsage: record => {
       recordUsage(stats, record)
       stats.edit(state => pruneDays(state, 120))
@@ -563,13 +572,14 @@ export function apply(ctx, config) {
    * which made every "the EAC models are gone" report undiscoverable.
    */
   async function refreshSealedRoster() {
-    const credential = sealedCredentialOf()
+    const credential = laneCredentialOf()
     if (credential === null) {
       sealedCatalog = []
-      // Web hosts are admitted too (issues #58/#59), so reaching here means the
-      // kernel gave no profile context at all — an embedding this lane is not
-      // published for, not a misconfigured desktop or web install.
-      logger.warn?.('our-free-model: the sealed lane is not available in this composition (no recognized host profile); its models stay hidden')
+      // Web hosts are admitted too (issues #58/#59), so reaching here with no
+      // custom relay configured means the kernel gave no profile context at
+      // all — an embedding this lane is not published for, not a misconfigured
+      // desktop or web install.
+      logger.warn?.('our-free-model: the co-paid lane has no credential (no recognized host profile, no custom relay); its models stay hidden')
       return
     }
     try {
@@ -670,7 +680,7 @@ export function apply(ctx, config) {
    * whole catalogs side by side — against a lane whose 429 carries a growing
    * `retry-after`, that is the user's own quota spent on the same question. A
    * caller that arrives mid-round joins the round in flight instead of starting
-   * another, which is what the feed poll above already does.
+   * another.
    *
    * `force` is for the callers whose round is worth its quota no matter what the
    * lane just said: a manual reprobe, the boot round, an egress change. The
@@ -1420,7 +1430,8 @@ export function apply(ctx, config) {
     // Whether the co-paid lane is open on this host at all — the settings page's
     // one-bit answer to "why do I see no EAC group" (issue #60). Reads the gate,
     // not the listing: a closed gate and a dead relay are different sentences.
-    laneAvailable: () => sealedCredentialOf() !== null,
+    laneAvailable: () => laneCredentialOf() !== null,
+    eacGateway: () => eacGatewayView(settings.get().eacGateway),
     forwardInfo: () => ({
       running: forward !== null,
       port: forward?.port ?? 0,
@@ -1520,17 +1531,6 @@ export function apply(ctx, config) {
       lastReload: globalThis[Symbol.for('our-free-model.last-reload')] ?? undefined,
       purgeSample: globalThis[Symbol.for('our-free-model.purge-sample')] ?? undefined,
     }),
-    announcements: {
-      view: feedView,
-      /** Persist the complete acked set the caller assembled (full-replace
-       *  semantics: the caller decides additions *and* clearings). */
-      ack: ids => {
-        settings.update({ announcementsAcked: [...ids] })
-        settings.flush()
-        return feedView()
-      },
-      refresh: () => feed.poll(),
-    },
     update: {
       status: () => managed
         ? { ...updater.status(), managed: true, available: false, latest: '' }
@@ -1592,7 +1592,6 @@ export function apply(ctx, config) {
   function helloPayload() {
     return {
       version: packageVersion,
-      announcements: { unread: feedView().unread, fetchedAt: feedView().fetchedAt },
       update: { available: updater.status().available, latest: updater.status().latest },
       reloadedAt: settings.get().reloadedAt ?? 0,
     }
@@ -1661,16 +1660,6 @@ export function apply(ctx, config) {
     })().catch(error => logger.warn?.(`our-free-model: startup refresh failed (${error?.message ?? error})`))
   }, 'our-free-model: boot refresh')
 
-  // Feed poll: shortly after boot, then on the configured period. Concurrency
-  // with a manual refresh is harmless — polls share one in-flight request.
-  // A managed install polls nothing: the pack speaks for the plugin.
-  ctx.effect(() => {
-    if (managed) return
-    const first = setTimeout(() => { void feed.poll() }, 12_000)
-    first.unref?.()
-    return () => clearTimeout(first)
-  }, 'our-free-model: first feed poll')
-
   /**
    * Run one task every `ms` for as long as this generation lives.
    *
@@ -1700,12 +1689,17 @@ export function apply(ctx, config) {
     ctx.effect(() => () => clearTimeout(handle), 'our-free-model: interval')
   }
 
+  // The update check keeps the cadence the announcement poll used to own: twice
+  // an hour, frequent enough that a published version surfaces the same
+  // afternoon. Tying it to `updateCheckHours` (6h by default) would have
+  // silently stretched every install's update latency by an order of magnitude
+  // the moment the feed went away — the setting stays as the opt-out (0) and as
+  // what the page displays, but it is no longer the period.
   if (!managed) {
     every(() => {
-      void feed.poll()
       const hours = settings.get().updateCheckHours ?? 6
       if (hours > 0) void updater.check().then(() => pushUpdate(false)).catch(() => {})
-    }, () => positiveOr(settings.get().feedPollMinutes, 30, 5) * 60_000)
+    }, 30 * 60_000)
   }
   // The probe period is in minutes, and one minute is the floor — a value of 0 or
   // a negative one would otherwise spin. This used to read `Math.max(60, …)`,
@@ -1801,7 +1795,6 @@ function sanitizeSettings(patch, current) {
     next[key] = Number.isFinite(value) && value > 0 ? Math.trunc(value) : (Number(current[key]) || fallback)
   }
   positive('probeIntervalMinutes', 15)
-  positive('feedPollMinutes', 30)
   positive('defaultMaxTokens', 32768)
   if (next.updateCheckHours !== undefined) {
     // Zero is a real answer here: it means "stop checking for updates".
@@ -2039,7 +2032,7 @@ function createApiRoutes(deps) {
         return send(200, await deps.outletStatus())
       }
       if (method === 'GET' && routePath === '/meta') {
-        return send(200, { ...deps.meta(), feed: { fetchedAt: deps.announcements.view().fetchedAt, source: deps.announcements.view().source, error: deps.announcements.view().error }, update: deps.update.status() })
+        return send(200, { ...deps.meta(), update: deps.update.status() })
       }
       if (method === 'POST' && routePath === '/eac/login/start') {
         const started = await deps.eacAuth.start()
@@ -2068,39 +2061,13 @@ function createApiRoutes(deps) {
         }
       }
       if (method === 'GET' && routePath === '/announcement') {
-        // A managed install also stands down the owner's onboarding copy: the
-        // pack, not the plugin, speaks for what is new.
-        const acknowledged = deps.managedDistribution === true || deps.settings.get().announcementAck === ANNOUNCEMENT_VERSION
-        return send(200, { version: ANNOUNCEMENT_VERSION, acknowledged })
+        // The onboarding announcement was removed; the route answers a fixed
+        // acknowledged payload so a stale page's gate completes instead of
+        // hanging the host's onboarding coordinator.
+        return send(200, { version: ANNOUNCEMENT_VERSION, acknowledged: true })
       }
       if (method === 'POST' && routePath === '/announcement/ack') {
-        // Bounded like every other write to this file: the query string is
-        // caller-controlled, and the comparison downstream only ever matches a
-        // version id — nothing needs the whole string.
-        deps.settings.update({ announcementAck: String(url.searchParams.get('version') ?? ANNOUNCEMENT_VERSION).slice(0, 64) })
-        deps.settings.flush()
         return send(200, { ok: true })
-      }
-      if (method === 'GET' && routePath === '/announcements') {
-        const view = deps.announcements.view()
-        return send(200, { ...view, acked: [...ackedSet(deps)], notifyOs: deps.settings.get().notifyOs === true })
-      }
-      if (method === 'POST' && routePath === '/announcements/ack') {
-        const body = await readJson(req)
-        const acked = ackedSet(deps)
-        if (body.all === true) {
-          // "mark all read": every announcement currently in the feed.
-          for (const item of deps.announcements.view().items) acked.add(item.id)
-        }
-        if (typeof body.id === 'string' && body.id !== '') acked.add(body.id)
-        deps.announcements.ack(acked)
-        return send(200, { ok: true, view: deps.announcements.view() })
-      }
-      if (method === 'POST' && routePath === '/announcements/refresh') {
-        // Managed installs poll no feed; a manual refresh is a polite no-op
-        // rather than a network round the pack never asked for.
-        if (deps.managedDistribution !== true) await deps.announcements.refresh()
-        return send(200, { ok: true, view: deps.announcements.view() })
       }
       if (method === 'GET' && routePath === '/update/status') {
         return send(200, deps.update.status())
@@ -2136,7 +2103,30 @@ function createApiRoutes(deps) {
       if (method === 'POST' && routePath === '/settings') {
         const patch = await readJson(req)
         const current = deps.settings.get()
-        const next = sanitizeSettings({ ...current, ...pick(patch, ['enabled', 'exposeRegionModels', 'probeIntervalMinutes', 'defaultMaxTokens', 'announcementAck', 'feedUrl', 'feedPollMinutes', 'notifyOs', 'updateCheckHours', 'autoReloadWatch']) }, current)
+        const next = sanitizeSettings({ ...current, ...pick(patch, ['enabled', 'exposeRegionModels', 'probeIntervalMinutes', 'defaultMaxTokens', 'updateCheckHours', 'autoReloadWatch']) }, current)
+        if (patch.eacGateway !== undefined) {
+          if (patch.eacGateway === null || typeof patch.eacGateway !== 'object') {
+            return send(400, { error: 'eacGateway must be an object' })
+          }
+          const patchView = eacGatewayView(patch.eacGateway, false)
+          if (patchView.error !== '') return send(400, { error: patchView.error })
+          // Merge over the stored record: a patch that names only `enabled`
+          // keeps the base URL and the key it was paired with. An empty
+          // `apiKey` is a field the page left blank — the key never round-trips,
+          // so blanking it must not mean "erase what is stored".
+          const gateway = { ...(current.eacGateway ?? {}), ...pick(patch.eacGateway, ['enabled', 'baseUrl', 'apiKey']) }
+          if (typeof gateway.apiKey === 'string' && gateway.apiKey.trim() === '' && typeof current.eacGateway?.apiKey === 'string') {
+            gateway.apiKey = current.eacGateway.apiKey
+          }
+          // Trailing slashes are normalized once, on write, so the stored value
+          // is exactly what the resolver hands the lane: `base` is concatenated
+          // with `/models` and `/chat/completions`, and a doubled slash there is
+          // a 404 on half the gateways.
+          if (typeof gateway.baseUrl === 'string') gateway.baseUrl = gateway.baseUrl.trim().replace(/\/+$/, '')
+          const mergedView = eacGatewayView(gateway)
+          if (mergedView.error !== '') return send(400, { error: mergedView.error })
+          next.eacGateway = gateway
+        }
         if (patch.forward !== undefined) {
           const forward = { ...(current.forward ?? {}), ...pick(patch.forward, ['enabled', 'host', 'port']) }
           // The listener spends this machine's lane, and a routable bind address
@@ -2253,9 +2243,51 @@ function createApiRoutes(deps) {
   }
 }
 
-function ackedSet(deps) {
-  const value = deps.settings.get().announcementsAcked
-  return new Set(Array.isArray(value) ? value : [])
+/**
+ * The custom EAC relay's view for the settings page.
+ *
+ * The API key is a credential held to the forward keys' standard: stored as
+ * given in the settings file, but never echoed — `hasKey` says whether one is
+ * set, and the value itself is only ever written by the POST that carries it.
+ * Validation lives here so every writer shares one verdict, returned as a
+ * readable `error` on the view itself.
+ */
+function eacGatewayView(input, complete = true) {
+  const record = input === null || typeof input !== 'object' || Array.isArray(input) ? {} : input
+  const enabled = record.enabled === true
+  const baseUrl = typeof record.baseUrl === 'string' ? record.baseUrl.trim() : ''
+  const apiKey = typeof record.apiKey === 'string' ? record.apiKey : ''
+  let error = ''
+  if (baseUrl !== '') {
+    try {
+      const parsed = new URL(baseUrl)
+      const loopback = parsed.hostname === '127.0.0.1' || parsed.hostname === 'localhost' || parsed.hostname === '::1'
+      if (parsed.protocol !== 'https:' && !(loopback && parsed.protocol === 'http:')) {
+        error = 'the relay base URL must be https (loopback http is allowed)'
+      } else if (parsed.username !== '' || parsed.password !== '') {
+        error = 'the relay base URL must not carry credentials'
+      } else if (baseUrl.length > 2048) {
+        error = 'the relay base URL is too long'
+      }
+    } catch {
+      error = 'the relay base URL is not a valid URL'
+    }
+  } else if (enabled) {
+    error = 'an enabled relay needs a base URL'
+  }
+  if (error === '' && apiKey.length > 4096) error = 'the relay API key is too long'
+  // `complete` is false only while judging a *patch*: one that names no
+  // key (or a blank one) is the page saying "leave the stored key
+  // alone", and the completeness rule below is enforced again on the
+  // merged record, where a key-less enabled relay really is a mistake.
+  if (error === '' && complete && enabled && apiKey.trim() === '') error = 'an enabled relay needs an API key'
+  return {
+    enabled,
+    hasBaseUrl: baseUrl !== '',
+    baseUrl,
+    hasKey: apiKey.trim() !== '',
+    error,
+  }
 }
 
 function pick(source, keys) {
@@ -2264,10 +2296,10 @@ function pick(source, keys) {
   return out
 }
 
-/** The most a browser-API request body may weigh. The settings patch and the
- *  announcement acks are the largest real payloads here by orders of magnitude;
- *  without a cap, any caller past the fence could buffer unbounded bytes into
- *  the host process — a different standard than the forward listener's 8 MB. */
+/** The most a browser-API request body may weigh. The settings patch is the
+ *  largest real payload here by orders of magnitude; without a cap, any caller
+ *  past the fence could buffer unbounded bytes into the host process — a
+ *  different standard than the forward listener's 8 MB. */
 const MAX_API_BODY_BYTES = 1024 * 1024
 
 async function readJson(req) {
@@ -2294,10 +2326,7 @@ function publicSettings(settings, forwardInfo, egressInfo) {
     exposeRegionModels: settings.exposeRegionModels !== false,
     probeIntervalMinutes: settings.probeIntervalMinutes ?? 15,
     defaultMaxTokens: settings.defaultMaxTokens ?? 32768,
-    announcementAck: settings.announcementAck ?? '',
-    feedUrl: typeof settings.feedUrl === 'string' ? settings.feedUrl : '',
-    feedPollMinutes: settings.feedPollMinutes ?? 30,
-    notifyOs: settings.notifyOs === true,
+    eacGateway: eacGatewayView(settings.eacGateway),
     updateCheckHours: settings.updateCheckHours ?? 6,
     autoReloadWatch: settings.autoReloadWatch === true,
     reloadedAt: settings.reloadedAt ?? 0,
@@ -2319,10 +2348,11 @@ function publicSettings(settings, forwardInfo, egressInfo) {
     },
     // A subscription link is not an endpoint, it is a bearer credential: the
     // path of the URL *is* the token, which is why it is handled like the
-    // forward keys and not like `feedUrl`. Stored as given, but never echoed —
-    // `urlLabel` is the masked host for the panel, `hasUrl` says whether one is
-    // set at all, and the value itself is served only by `GET /egress/url`, on
-    // the settings page's own ask (see src/egress.js `outletLabel`).
+    // forward keys and like the custom relay's API key above. Stored as given,
+    // but never echoed — `urlLabel` is the masked host for the panel, `hasUrl`
+    // says whether one is set at all, and the value itself is served only by
+    // `GET /egress/url`, on the settings page's own ask (see src/egress.js
+    // `outletLabel`).
     egress: {
       ...pick(settings.egress ?? {}, ['enabled', 'mode', 'mihomoPath']),
       hasUrl: String(settings.egress?.url ?? '') !== '',
@@ -2346,7 +2376,6 @@ function buildSummary(deps) {
   const snapshot = deps.availability.get()
   const forwardInfo = deps.forwardInfo()
   const update = deps.update.status()
-  const feedView = deps.announcements.view()
   const defaultMaxTokens = deps.settings.get().defaultMaxTokens
   return {
     catalog: state.catalog.map(entry => ({
@@ -2374,11 +2403,13 @@ function buildSummary(deps) {
     announcementVersion: ANNOUNCEMENT_VERSION,
     version: deps.meta().version,
     distribution: deps.meta().distribution,
-    announcements: { unread: feedView.unread, fetchedAt: feedView.fetchedAt },
-    // One bit for the settings page: false with an empty EAC group means the
-    // gate never opened (a host the kernel gave no profile context), which is a
-    // different sentence from "the relay is down" (issue #60).
+    // One bit for the settings page: false with an empty EAC group means no
+    // credential — a host the kernel gave no profile context and no custom
+    // relay configured — which is a different sentence from "the relay is
+    // down" (issue #60).
     laneAvailable: deps.laneAvailable?.() === true,
+    // The custom relay panel's state, key masked out (see `eacGatewayView`).
+    eacGateway: deps.eacGateway?.() ?? eacGatewayView(null),
     // The last GitHub-authorization verdict (the settings page refreshes it via
     // /eac/status on mount). `authorized: false` with the lane available is the
     // one state the model cards badge as locked.

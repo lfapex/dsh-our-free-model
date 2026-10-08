@@ -233,22 +233,17 @@ else {
   const stats = await call('GET', '/api/our-free-model/stats')
   console.log(`  GET  /stats    -> ${stats.status} requests=${stats.json?.requests} models=${stats.json?.models?.length} days=${stats.json?.days?.length}`)
   const announce = await call('GET', '/api/our-free-model/announcement')
-  console.log(`  GET  /announcement -> ${announce.status} version=${announce.json?.version === ANNOUNCEMENT_VERSION} ack=${announce.json?.acknowledged}`)
+  console.log(`  GET  /announcement -> ${announce.status} version=${announce.json?.version === ANNOUNCEMENT_VERSION} ack=${announce.json?.acknowledged} (legacy stub: a page cached before the announcement system was removed still completes onboarding)`)
   const bench = await call('POST', '/api/our-free-model/bench', { model: target.id, effort: 'light' })
   console.log(`  POST /bench    -> ${bench.status} ${JSON.stringify(bench.json?.ttftMs ?? bench.json?.error)}ms ttft, ${bench.json?.tokensPerSecond === null ? 'no measurable rate' : JSON.stringify(bench.json?.tokensPerSecond)} tok/s`)
 
-  console.log('\n--- 6b. the new distribution surface (meta / announcements / update) ---')
+  console.log('\n--- 6b. the distribution surface (meta / relay config / update) ---')
   const meta = await call('GET', '/api/our-free-model/meta')
   console.log(`  GET  /meta          -> ${meta.status} version=${JSON.stringify(meta.json?.version)} generation=${meta.json?.generation}`)
   const anns = await call('GET', '/api/our-free-model/announcements')
-  console.log(`  GET  /announcements -> ${anns.status} items=${anns.json?.items?.length} unread=${anns.json?.unread} error=${JSON.stringify(anns.json?.error?.slice(0, 60) ?? '')}`)
-  const refreshed = await call('POST', '/api/our-free-model/announcements/refresh')
-  console.log(`  POST /announcements/refresh -> ${refreshed.status} items=${refreshed.json?.view?.items?.length} fetchedAt=${refreshed.json?.view?.fetchedAt > 0}`)
-  const withArrivals = refreshed.json?.view?.items?.length > 0
-  if (withArrivals) {
-    const acked = await call('POST', '/api/our-free-model/announcements/ack', { id: refreshed.json.view.items[0].id })
-    console.log(`  POST /announcements/ack -> ${acked.status} unread=${acked.json?.view?.unread}`)
-  }
+  console.log(`  GET  /announcements -> ${anns.status} (the announcement system is gone; the route is 404)`)
+  const relay = await call('GET', '/api/our-free-model/settings')
+  console.log(`  GET  /settings     -> ${relay.status} eacGateway=${JSON.stringify(relay.json?.eacGateway)} (the key itself is never echoed back)`)
   const fence = await (async () => {
     const res = { status: 0, body: '', writeHead: code => { res.status = code }, end: text => { res.body = String(text ?? '') }, get headersSent() { return res.status !== 0 } }
     const hostile = new Readable_stub('GET', '/api/our-free-model/summary')

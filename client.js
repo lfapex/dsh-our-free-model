@@ -34,7 +34,6 @@ window.__ModuleLoader__.load({
       zh: {
         'meta.title': 'Our Free Model',
         'meta.description': '在 DeepSeek Harness 内直连免密免费模型：清单随上游更新、地区可用性自动探测、思考强度真实生效，并附 Token 看板与 OpenAI 兼容转发端口。',
-        'ann.pitch': '你只需在 dsh 里装上这个插件，无需登录、注册、填 API Key 或任何其它操作，就能用上包括 Muse Spark 1.3、MiMo V2.6 在内的前沿模型——完全免费，不限量。',
         nav: 'Our Free Model',
         title: 'Our Free Model',
         refresh: '刷新清单',
@@ -84,8 +83,8 @@ window.__ModuleLoader__.load({
         'pool.reasonUnreachable': '网关暂不可达',
         'pool.reasonUnknown': '原因未知',
         'pool.capacityUnknown': 'Star 数据暂不可用',
-        'section.eac': 'EAC 渠道授权',
-        'section.eacHint': 'EAC（协付）模型需要 GitHub 登录并 star 仓库；免费车道的模型不受影响。',
+        'section.eac': 'EAC 渠道授权（内置密封车道）',
+        'section.eacHint': '内置密封车道需要 GitHub 登录并 star 仓库；接入自定义中转站后本区块不用理会。',
         'eac.pillOk': '已授权',
         'eac.pillLocked': '未授权',
         'eac.pillRequired': '已开启强制',
@@ -111,7 +110,7 @@ window.__ModuleLoader__.load({
         'eac.loggedIn': '已授权：@{login} · 上次复查 {when}',
         'eac.recheck': '重新检查',
         'eac.logout': '退出登录',
-        'eac.noLane': '当前运行环境未解锁 EAC 协付车道，无法进行 GitHub 授权。',
+        'eac.noLane': '当前运行环境未解锁内置密封车道（也不影响已启用的自定义中转站）。',
         'eac.lockedTitle': '需要 GitHub 授权并 star 仓库后使用',
         'eac.lockedNote': '未授权：点下方按钮用 GitHub 登录并 star 仓库，或到「EAC 渠道授权」区完成。',
         'section.forward': '本地转发（OpenAI 兼容）',
@@ -218,56 +217,8 @@ window.__ModuleLoader__.load({
         'bench.run': '测一次',
         'bench.running': '测量中…',
         'bench.result': '首帧 {ttft}ms · 输出 {tps} tok/s · 推理 {reasoning} tok',
-        'ann.preamble': '前言',
-        'ann.models': '模型清单',
-        'ann.steps': '使用步骤',
-        'ann.features': '功能介绍',
-        'ann.later': '稍后再说',
-        'ann.page': '第 {n} / {total} 页',
-        'ann.openSettings': '打开设置页',
-        'ann.p1': '免密：安装即可用，不需要注册、不需要填任何 API Key。',
-        'ann.p2': '清单跟随上游：模型集合、上下文长度与能力每次刷新都重新拉取。',
-        'ann.p3': '诚实的能力声明：探测不出来的能力不会显示，思考强度档位是真实生效的输出预算上限。',
-        'ann.s1': '在输入框的模型选择器里选 “Our Free Model” 分组下的任意模型。',
-        'ann.s2': '需要更强推理时点开 Effort 档位；它是真实下发的输出预算，不是提示词。',
-        'ann.s3': '想被其它本地工具调用：设置页 → 本地转发 → 启用，把 Base URL 和 Key 填进去。',
-        'ann.s4': '地区受限模型会在你切换网络出口后自动重新归类，无需手动操作。',
-        'ann.f1': '模型清单：可用性、上下文长度、是否支持视觉、是否可调思考。',
-        'ann.f2': 'Token 热力图与总量曲线，支持总计与按模型分别查看。',
-        'ann.f3': '输出速度（tok/s）与首字延迟（TTFT）逐次采样。',
-        'ann.f4': 'OpenAI 兼容转发端口 + 可生成的 API Key。',
-        'ann.f5': '全部数据留在本机，不上传任何遥测。',
-        'ann.updates': '公告与升级',
-        'ann.u1': '公告中心：仓库主人推送的新公告会实时到达，支持图文排版（HTML）。',
-        'ann.u2': '系统通知：开启后，新公告与插件更新会弹出系统级通知。',
-        'ann.u3': '应用内升级：新版本发布后可直接在设置页升级，无需重新安装。',
-        'ann.u4': '热重载：升级与本插件的代码更新即时生效，不需要重启应用。',
-        'section.news': '公告中心',
-        'section.newsHint': '公告由仓库主人推送，本页实时接收。',
         'section.upgrade': '插件升级',
         'section.upgradeHint': '在应用内直接升级插件，无需重新安装或重启。',
-        'news.unread': '{n} 条未读',
-        'news.allRead': '全部已读',
-        'news.markRead': '标记已读',
-        'news.expand': '展开公告',
-        'news.collapse': '收起公告',
-        'news.refresh': '检查新公告',
-        'news.refreshing': '检查中…',
-        'news.empty': '暂无公告。仓库主人推送的新公告会出现在这里。',
-        'news.emptyHint': '公告内容支持图文排版，由仓库主人在插件仓库中编辑发布。',
-        'news.osEnable': '开启系统通知',
-        'news.osOn': '系统通知已开启',
-        'news.osOff': '系统通知未开启',
-        'news.osDenied': '浏览器拒绝了通知权限；需要在系统/浏览器设置里手动恢复。',
-        'news.link': '查看详情',
-        'news.urgentTitle': '重要公告',
-        'news.gotIt': '知道了',
-        'news.lastFetch': '最近拉取',
-        'news.fetchFailed': '公告源暂不可达（显示的是缓存）',
-        'level.info': '通知',
-        'level.update': '更新',
-        'level.warn': '注意',
-        'level.urgent': '紧急',
         'upgrade.current': '运行版本',
         'upgrade.installed': '磁盘版本',
         'upgrade.mismatch': '运行版本与磁盘版本不一致，请先确认安装状态，再重载或重启。',
@@ -277,7 +228,6 @@ window.__ModuleLoader__.load({
         'upgrade.checkedAt': '上次检查',
         'upgrade.never': '从未检查',
         'upgrade.check': '检查更新',
-        'upgrade.star': '去 GitHub 点 Star',
         'upgrade.checking': '检查中…',
         'upgrade.upToDate': '已是最新版本',
         'upgrade.available': '可升级到 {version}',
@@ -299,22 +249,34 @@ window.__ModuleLoader__.load({
         'reload.done': '插件已热重载（第 {n} 次）。',
         'reload.refresh': '刷新页面',
         'reload.auto': '文件变化自动热重载',
-        'toast.annTitle': '新公告',
         'toast.updateTitle': '插件可升级',
         'toast.updateBody': '发现新版本 {latest}（当前 {current}），可到设置页升级。',
         'nav.tab.free': '免费模型',
         'nav.tab.eac': 'EAC 模型',
         'nav.tab.channels': '白嫖模型接入',
-        'star.cta': '点个 Star',
-        'star.title': '在 GitHub 上给本仓库点 Star',
         'free.title': '免费模型',
         'free.sub': '免登录、免 Key、免配置：模型清单跟随上游刷新，可用性由这台机器实测。',
         'free.tankLabel': '免费车道可用度',
         'free.tankNote': '水位 = 当前可用模型占比（{ok}/{total}）',
         'free.tankEmpty': '尚未探测，水位按已声明模型占位。',
         'eac.title': 'EAC 模型',
-        'eac.sub': '桌面端协付渠道：GitHub 登录并 star 本仓库后解锁，与免费车道互不影响。',
+        'eac.sub': '协付渠道：默认走内置密封车道（GitHub 登录并 star 后解锁），也可在下方接入自己的 OpenAI 兼容中转站。',
         'eac.tankLabel': '协付池压力',
+        'gw.title': '自定义中转站',
+        'gw.hint': '接入任意 OpenAI 兼容中转站（<base>/models、<base>/chat/completions）。启用后 EAC 模型全部走中转站，无需 GitHub 授权，模型清单以中转站返回为准。',
+        'gw.baseUrl': 'Base URL',
+        'gw.baseUrlPlaceholder': 'https://your-relay.example.com/v1',
+        'gw.apiKey': 'API Key',
+        'gw.apiKeyPlaceholder': 'sk-…',
+        'gw.enabled': '启用自定义中转站',
+        'gw.keySet': '已保存（留空表示不修改）',
+        'gw.keyEmpty': '未设置',
+        'gw.save': '保存中转站',
+        'gw.saved': '中转站已保存，模型清单将在下一次刷新时更新。',
+        'gw.failed': '保存失败：{message}',
+        'gw.active': '当前生效：自定义中转站',
+        'gw.inactive': '当前生效：内置密封车道',
+        'gw.noLane': '未接入：既没有密封车道，也没有启用的中转站。',
         'chan.title': '白嫖模型接入',
         'chan.sub': '把各家的免费额度接进来：登录一次，模型就出现在对话框的模型选择器里。凭据只写入本机凭据库，页面永远拿不到明文。',
         'chan.pack.failed': '渠道包未挂载：{reason}（免费车道与 EAC 不受影响）',
@@ -454,7 +416,6 @@ window.__ModuleLoader__.load({
       en: {
         'meta.title': 'Our Free Model',
         'meta.description': 'Free no-key models inside DeepSeek Harness: a roster that follows upstream, live regional availability, genuinely enforced thinking levels, a token dashboard and an OpenAI-compatible local forward port.',
-        'ann.pitch': 'All you do is install this plugin in dsh — no login, no sign-up, no API key, no other step of any kind. The frontier models are simply there, Muse Spark 1.3 and MiMo V2.6 among them. Completely free, with no usage cap.',
         nav: 'Our Free Model',
         title: 'Our Free Model',
         refresh: 'Refresh roster',
@@ -529,8 +490,8 @@ window.__ModuleLoader__.load({
         'pool.reasonUnreachable': 'gateway unreachable',
         'pool.reasonUnknown': 'unknown cause',
         'pool.capacityUnknown': 'star data unavailable',
-        'section.eac': 'EAC lane authorization',
-        'section.eacHint': 'EAC (co-paid) models need a GitHub login and a star; the free lane is unaffected.',
+        'section.eac': 'EAC lane authorization (sealed lane)',
+        'section.eacHint': 'The built-in sealed lane needs a GitHub login and a star; with a custom relay enabled this section can be ignored.',
         'eac.pillOk': 'authorized',
         'eac.pillLocked': 'not authorized',
         'eac.pillRequired': 'enforced',
@@ -556,7 +517,7 @@ window.__ModuleLoader__.load({
         'eac.loggedIn': 'Authorized: @{login} · last checked {when}',
         'eac.recheck': 'Check again',
         'eac.logout': 'Sign out',
-        'eac.noLane': 'The EAC co-paid lane is not unlocked in this composition, so GitHub authorization is unavailable.',
+        'eac.noLane': 'The sealed lane is not unlocked in this composition (a custom relay, if enabled, is unaffected).',
         'eac.lockedTitle': 'Needs GitHub authorization and a star',
         'eac.lockedNote': 'Not authorized: sign in with GitHub and star the repository with the button below, or from the EAC authorization section.',
         'heat.title': 'Token heatmap',
@@ -638,56 +599,8 @@ window.__ModuleLoader__.load({
         'bench.run': 'Run once',
         'bench.running': 'Measuring…',
         'bench.result': 'first frame {ttft}ms · {tps} tok/s · {reasoning} reasoning tokens',
-        'ann.preamble': 'Preamble',
-        'ann.models': 'Model roster',
-        'ann.steps': 'How to use',
-        'ann.features': 'What it does',
-        'ann.later': 'Later',
-        'ann.page': 'Page {n} of {total}',
-        'ann.openSettings': 'Open settings',
-        'ann.p1': 'No credentials: install and use it — no sign-up, no API key to paste.',
-        'ann.p2': 'The roster follows upstream: models, context lengths and capabilities are re-fetched on every refresh.',
-        'ann.p3': 'Honest capability claims: anything a probe cannot confirm stays hidden, and each effort level is a real output budget.',
-        'ann.s1': 'Pick any model under the “Our Free Model” group in the composer’s model selector.',
-        'ann.s2': 'For harder reasoning, open the Effort menu — it sends a real budget, not a prompt hint.',
-        'ann.s3': 'To serve other local tools: Settings → Local forward → enable, then copy the base URL and key.',
-        'ann.s4': 'Region-limited models reclassify themselves once your network egress changes.',
-        'ann.f1': 'Model roster: availability, context length, vision, tunable thinking.',
-        'ann.f2': 'Token heatmap and cumulative curve, per total or per model.',
-        'ann.f3': 'Per-call samples of output speed (tok/s) and time to first token.',
-        'ann.f4': 'OpenAI-compatible forward port with a generated API key.',
-        'ann.f5': 'Everything stays on this machine — no telemetry.',
-        'ann.updates': 'News & upgrades',
-        'ann.u1': 'Announcement center: pushes from the repository owner arrive live, with rich (HTML) layout.',
-        'ann.u2': 'OS notifications: once enabled, new announcements and plugin updates raise system-level toasts.',
-        'ann.u3': 'In-app upgrades: install new releases straight from the settings page, no reinstall needed.',
-        'ann.u4': 'Hot reload: upgrades and code changes take effect immediately, without restarting the app.',
-        'section.news': 'Announcement center',
-        'section.newsHint': 'Published by the repository owner; this page receives them live.',
         'section.upgrade': 'Plugin upgrade',
         'section.upgradeHint': 'Upgrade in-app — no reinstall, no restart.',
-        'news.unread': '{n} unread',
-        'news.allRead': 'Mark all read',
-        'news.markRead': 'Mark read',
-        'news.expand': 'Show announcements',
-        'news.collapse': 'Hide announcements',
-        'news.refresh': 'Check for new announcements',
-        'news.refreshing': 'Checking…',
-        'news.empty': 'No announcements yet. Anything the owner pushes will appear here.',
-        'news.emptyHint': 'Announcements support rich layout and are published by editing the plugin repository.',
-        'news.osEnable': 'Enable OS notifications',
-        'news.osOn': 'OS notifications on',
-        'news.osOff': 'OS notifications off',
-        'news.osDenied': 'Notification permission was denied; restore it in your system or browser settings.',
-        'news.link': 'Read more',
-        'news.urgentTitle': 'Important announcement',
-        'news.gotIt': 'Got it',
-        'news.lastFetch': 'Last fetch',
-        'news.fetchFailed': 'Feed unreachable right now (showing the cached copy)',
-        'level.info': 'Notice',
-        'level.update': 'Update',
-        'level.warn': 'Heads-up',
-        'level.urgent': 'Urgent',
         'upgrade.current': 'Running',
         'upgrade.installed': 'On disk',
         'upgrade.mismatch': 'The running and on-disk versions differ. Check the installation before reloading or restarting.',
@@ -697,7 +610,6 @@ window.__ModuleLoader__.load({
         'upgrade.checkedAt': 'Last check',
         'upgrade.never': 'never',
         'upgrade.check': 'Check for updates',
-        'upgrade.star': 'Star on GitHub',
         'upgrade.checking': 'Checking…',
         'upgrade.upToDate': 'Up to date',
         'upgrade.available': 'Upgrade to {version} available',
@@ -719,22 +631,34 @@ window.__ModuleLoader__.load({
         'reload.done': 'Plugin hot-reloaded (#{n}).',
         'reload.refresh': 'Reload page',
         'reload.auto': 'Hot-reload on file change',
-        'toast.annTitle': 'New announcement',
         'toast.updateTitle': 'Plugin update available',
         'toast.updateBody': 'Version {latest} is out (installed {current}). Upgrade from the settings page.',
         'nav.tab.free': 'Free models',
         'nav.tab.eac': 'EAC models',
         'nav.tab.channels': 'Free channels',
-        'star.cta': 'Star',
-        'star.title': 'Star this repository on GitHub',
         'free.title': 'Free models',
         'free.sub': 'No login, no key, no setup: the roster follows upstream, availability is measured from this machine.',
         'free.tankLabel': 'Free-lane availability',
         'free.tankNote': 'Water level = share of reachable models ({ok}/{total})',
         'free.tankEmpty': 'Not probed yet; the level stands at the declared roster.',
         'eac.title': 'EAC models',
-        'eac.sub': 'The desktop co-paid lane: unlocked by a GitHub login plus a star, independent of the free lane.',
+        'eac.sub': 'The co-paid lane: the built-in sealed lane (unlocked by a GitHub login plus a star), or your own OpenAI-compatible relay configured below.',
         'eac.tankLabel': 'Co-paid pool pressure',
+        'gw.title': 'Custom relay',
+        'gw.hint': 'Point the lane at any OpenAI-compatible relay (<base>/models, <base>/chat/completions). When enabled every EAC model rides the relay — no GitHub authorization, and the roster is whatever the relay lists.',
+        'gw.baseUrl': 'Base URL',
+        'gw.baseUrlPlaceholder': 'https://your-relay.example.com/v1',
+        'gw.apiKey': 'API Key',
+        'gw.apiKeyPlaceholder': 'sk-…',
+        'gw.enabled': 'Enable custom relay',
+        'gw.keySet': 'saved (leave empty to keep it)',
+        'gw.keyEmpty': 'not set',
+        'gw.save': 'Save relay',
+        'gw.saved': 'Relay saved; the roster refreshes on the next listing round.',
+        'gw.failed': 'Save failed: {message}',
+        'gw.active': 'Active: custom relay',
+        'gw.inactive': 'Active: built-in sealed lane',
+        'gw.noLane': 'Not connected: neither a sealed lane nor an enabled relay.',
         'chan.title': 'Free channel access',
         'chan.sub': 'Bring each vendor\'s free quota in: sign in once and its models appear in the composer\'s model picker. Credentials are written to the local credential store only — this page never sees them.',
         'chan.pack.failed': 'Channel pack not mounted: {reason} (the free and EAC lanes are unaffected)',
@@ -947,7 +871,6 @@ window.__ModuleLoader__.load({
 .ofm_btn:disabled{opacity:.5;cursor:default}
 .ofm_btn.primary{background:var(--dsw-alias-state-business-primary);border-color:var(--dsw-alias-state-business-primary);color:var(--dsw-alias-label-on-accent,#fff)}
 .ofm_btn.ghost{background:transparent}
-.ofm_starlink{display:inline-flex;align-items:center;gap:6px;text-decoration:none}
 .ofm_field{display:flex;flex-direction:column;gap:4px;min-width:120px}
 .ofm_field>span{font-size:11px;color:var(--dsw-alias-label-tertiary)}
 .ofm_input{font:inherit;font-size:12px;padding:5px 9px;border-radius:9px;border:1px solid var(--dsw-alias-border-l2);background:var(--dsw-alias-bg-layer-1);color:var(--dsw-alias-label-primary);min-width:0;width:100%}
@@ -964,44 +887,11 @@ window.__ModuleLoader__.load({
 .ofm_stat{padding:9px 11px;border-radius:11px;background:var(--dsw-alias-bg-layer-1);border:1px solid var(--dsw-alias-border-l1)}
 .ofm_stat b{display:block;font-size:16px;font-weight:680;font-variant-numeric:tabular-nums;letter-spacing:-.3px}
 .ofm_stat span{font-size:10.5px;color:var(--dsw-alias-label-tertiary)}
-/* announcement */
-/* The onboarding slot is mounted inside the collapsed sidebar foot of the shell,
-   so a card that stays in flow inherits a 55 px-wide, overflow-hidden column. The
-   scrim is therefore fixed to the viewport; the shell sets no transform, filter
-   or contain on any ancestor, so nothing re-anchors it. Mask colour, blur and
-   z-index mirror the Modal layer of the shell so this reads as first-party. */
+/* The GitHub-login modal reuses the shell's Modal layer geometry so it reads as
+   first-party. */
 .ofm_scrim{position:fixed;inset:0;z-index:1000;display:flex;align-items:center;justify-content:center;padding:24px;box-sizing:border-box;background:var(--dsw-alias-bg-mask-1, rgb(0 0 0 / 24%));backdrop-filter:var(--dsw-mask-blur, blur(2px))}
-.ofm_ann{width:min(620px,92vw);max-height:min(86vh,640px);border-radius:18px;border:1px solid var(--dsw-alias-border-l2);background:var(--dsw-alias-bg-layer-2);box-shadow:0 24px 70px rgb(0 0 0 / 34%);overflow:hidden;display:flex;flex-direction:column}
-.ofm_annhead{padding:18px 22px 12px;display:flex;flex-direction:column;gap:8px;background:linear-gradient(150deg,var(--dsw-alias-bg-layer-3),transparent)}
-.ofm_anntitle{margin:0;font-size:18px;font-weight:700;letter-spacing:-.3px}
-.ofm_annsub{margin:0;font-size:12px;color:var(--dsw-alias-label-tertiary)}
-.ofm_steps{display:flex;gap:6px;padding:0 22px 14px}
-.ofm_step{height:3px;flex:1;border-radius:99px;background:var(--dsw-alias-border-l2);transition:background .2s ease}
-.ofm_step[data-on="true"]{background:var(--dsw-alias-state-business-primary)}
-.ofm_annbody{padding:2px 22px 18px;max-height:min(48vh,420px);overflow:auto;display:flex;flex-direction:column;gap:12px}
-.ofm_annbody h3{margin:0;font-size:13.5px;font-weight:660}
-.ofm_annbody p,.ofm_annbody li{font-size:12.5px;line-height:1.72;color:var(--dsw-alias-label-secondary);margin:0}
-.ofm_annbody ul{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:5px}
-.ofm_annfoot{display:flex;align-items:center;gap:10px;padding:13px 22px;border-top:1px solid var(--dsw-alias-border-l1);background:var(--dsw-alias-bg-layer-1)}
-.ofm_annfoot .spacer{margin-left:auto}
-.ofm_kv{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px}
-.ofm_kvc{padding:9px 11px;border-radius:11px;border:1px solid var(--dsw-alias-border-l1);background:var(--dsw-alias-bg-layer-1);display:flex;flex-direction:column;gap:3px}
-.ofm_kvc b{font-size:12.5px}
-.ofm_kvc span{font-size:10.5px;color:var(--dsw-alias-label-tertiary)}
 .ofm_two{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:12px}
-/* announcement center + upgrade */
-.ofm_news{display:flex;flex-direction:column;gap:10px}
-.ofm_newsitem{display:flex;flex-direction:column;gap:7px;padding:12px 14px;border-radius:12px;border:1px solid var(--dsw-alias-border-l2);background:var(--dsw-alias-bg-layer-3);position:relative}
-.ofm_newsitem.unread{border-color:var(--dsw-alias-state-business-primary)}
-.ofm_newsdot{position:absolute;top:14px;right:14px;width:8px;height:8px;border-radius:50%;background:var(--dsw-alias-state-business-primary)}
-.ofm_newshead{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding-right:16px}
-.ofm_newstitle{font-size:13px;font-weight:650}
-.ofm_level{font-size:10.5px;padding:2px 8px;border-radius:999px;border:1px solid var(--dsw-alias-border-l1);color:var(--dsw-alias-label-secondary);white-space:nowrap}
-.ofm_level.info{color:var(--dsw-alias-state-business-primary);border-color:var(--dsw-alias-state-business-primary)}
-.ofm_level.update{color:var(--dsw-alias-state-success-primary);border-color:var(--dsw-alias-state-success-primary)}
-.ofm_level.warn{color:var(--dsw-alias-state-warning-primary,#f0a441);border-color:var(--dsw-alias-state-warning-primary,#f0a441)}
-.ofm_level.urgent{color:#fff;background:var(--dsw-alias-state-error-primary);border-color:var(--dsw-alias-state-error-primary)}
-.ofm_newsmeta{display:flex;gap:10px;font-size:11px;color:var(--dsw-alias-label-tertiary);flex-wrap:wrap}
+/* upgrade */
 .ofm_newsbody{font-size:12.5px;line-height:1.7;color:var(--dsw-alias-label-secondary);overflow-wrap:anywhere}
 .ofm_newsbody p{margin:0 0 6px}
 .ofm_newsbody p:last-child{margin-bottom:0}
@@ -1044,8 +934,6 @@ window.__ModuleLoader__.load({
 .ofm_modalfoot{display:flex;justify-content:flex-end;gap:8px;padding:12px 20px;border-top:1px solid var(--dsw-alias-border-l1);background:var(--dsw-alias-bg-layer-1)}
 @media (max-width:720px){.ofm_sec_hint{margin-left:0;width:100%}.ofm_pills{margin-left:0;width:100%}}
 @keyframes ofmpulse{50%{opacity:.3}}
-.ofm_starbtn{display:inline-flex;gap:6px;align-items:center;padding:6px 13px;border-radius:999px;border:1px solid var(--dsw-alias-state-business-primary);color:var(--dsw-alias-state-business-primary);text-decoration:none;font-weight:600;font-size:12.5px;transition:background .2s,color .2s;white-space:nowrap}
-.ofm_starbtn:hover{background:var(--dsw-alias-state-business-primary);color:#fff}
 .ofm_tank{position:relative;width:206px;height:128px;border-radius:16px;overflow:hidden;flex:none;background:linear-gradient(180deg,rgba(127,166,255,.10),rgba(127,166,255,.03));box-shadow:inset 0 0 0 1px var(--dsw-alias-border-l1)}
 .ofm_tankwater{position:absolute;left:0;right:0;bottom:0;height:var(--lvl,0%);transition:height 1.4s cubic-bezier(.22,.61,.36,1)}
 .ofm_tank.ok .ofm_tankwater{background:linear-gradient(180deg,color-mix(in srgb,var(--dsw-alias-state-business-primary) 72%,transparent),var(--dsw-alias-state-business-primary))}
@@ -1095,22 +983,12 @@ window.__ModuleLoader__.load({
 .ofm_tab[data-on="true"]{color:var(--dsw-alias-label-primary)}
 .ofm_tab:hover{color:var(--dsw-alias-label-primary)}
 .ofm_tab .ofm_tabnum{font-variant-numeric:tabular-nums;font-weight:600;color:var(--dsw-alias-label-tertiary);margin-left:6px;font-size:11px}
-.ofm_navspacer{display:none}
-/* The star belongs beside the brand: grid auto-placement would push it below
-   the tabs row (they come first in the DOM) and stretch it across the row. */
-.ofm_nav .ofm_starbtn{grid-column:2;grid-row:1;justify-self:end}
-.ofm_starbtn{position:relative;display:inline-flex;gap:7px;align-items:center;padding:7px 15px;border-radius:999px;border:1px solid color-mix(in srgb,var(--dsw-alias-state-business-primary) 55%,transparent);background:linear-gradient(140deg,color-mix(in srgb,var(--dsw-alias-state-business-primary) 16%,transparent),transparent 70%);color:var(--dsw-alias-state-business-primary);text-decoration:none;font-weight:650;font-size:12.5px;transition:transform .18s ease,box-shadow .22s ease,color .22s ease,background .22s ease;white-space:nowrap;overflow:hidden}
-.ofm_starbtn svg{width:14px;height:14px;fill:currentColor;transition:transform .3s cubic-bezier(.34,1.56,.64,1)}
-.ofm_starbtn:hover{transform:translateY(-1px);box-shadow:0 8px 22px color-mix(in srgb,var(--dsw-alias-state-business-primary) 34%,transparent);background:linear-gradient(140deg,var(--dsw-alias-state-business-primary),color-mix(in srgb,var(--dsw-alias-state-business-primary) 72%,#3ECFA0));color:#fff}
-.ofm_starbtn:hover svg{transform:rotate(-72deg) scale(1.12)}
-.ofm_starbtn::after{content:"";position:absolute;top:0;bottom:0;width:38%;left:-45%;background:linear-gradient(100deg,transparent,rgb(255 255 255 / 34%),transparent);transform:skewX(-18deg);transition:left .55s ease}
-.ofm_starbtn:hover::after{left:112%}
 .ofm_page{display:flex;flex-direction:column;gap:20px;animation:ofmpagein .36s cubic-bezier(.22,.61,.36,1)}
 @keyframes ofmpagein{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
 /* 毛玻璃表面：只给大块面用 backdrop-filter，小卡片用半透明叠层，滚动更顺 */
 .ofm_glass{background:color-mix(in srgb,var(--dsw-alias-bg-layer-2) 68%,transparent);backdrop-filter:blur(16px) saturate(150%);-webkit-backdrop-filter:blur(16px) saturate(150%);border:1px solid color-mix(in srgb,var(--dsw-alias-border-l2) 78%,transparent);box-shadow:inset 0 1px 0 rgb(255 255 255 / 6%),0 12px 34px rgb(0 0 0 / 9%)}
-.ofm_root .ofm_hero,.ofm_root .ofm_panel,.ofm_root .ofm_ann,.ofm_root .ofm_modal{background:color-mix(in srgb,var(--dsw-alias-bg-layer-2) 70%,transparent);backdrop-filter:blur(18px) saturate(155%);-webkit-backdrop-filter:blur(18px) saturate(155%);box-shadow:inset 0 1px 0 rgb(255 255 255 / 7%),0 14px 40px rgb(0 0 0 / 10%)}
-.ofm_root .ofm_card,.ofm_root .ofm_newsitem,.ofm_root .ofm_stat{background:color-mix(in srgb,var(--dsw-alias-bg-layer-3) 78%,transparent);box-shadow:inset 0 1px 0 rgb(255 255 255 / 5%)}
+.ofm_root .ofm_hero,.ofm_root .ofm_panel,.ofm_root .ofm_modal{background:color-mix(in srgb,var(--dsw-alias-bg-layer-2) 70%,transparent);backdrop-filter:blur(18px) saturate(155%);-webkit-backdrop-filter:blur(18px) saturate(155%);box-shadow:inset 0 1px 0 rgb(255 255 255 / 7%),0 14px 40px rgb(0 0 0 / 10%)}
+.ofm_root .ofm_card,.ofm_root .ofm_stat{background:color-mix(in srgb,var(--dsw-alias-bg-layer-3) 78%,transparent);box-shadow:inset 0 1px 0 rgb(255 255 255 / 5%)}
 .ofm_root .ofm_card{transition:border-color .18s ease,transform .22s cubic-bezier(.22,.61,.36,1),box-shadow .22s ease}
 .ofm_root .ofm_card:hover{transform:translateY(-3px);box-shadow:inset 0 1px 0 rgb(255 255 255 / 8%),0 14px 30px rgb(0 0 0 / 14%)}
 /* 页头：标题 + 鱼缸（鱼缸紧随标题，位于页首最上方） */
@@ -1537,39 +1415,6 @@ window.__ModuleLoader__.load({
       return undefined
     }
 
-    /** Modal surface for `urgent` announcements; dismiss runs the ack callback. */
-    function showUrgentModal({ title, html, confirmLabel, onClose }) {
-      try {
-        document.querySelector('.ofm_scrim[data-ofm-urgent]')?.remove()
-        const scrim = document.createElement('div')
-        scrim.className = 'ofm_scrim'
-        scrim.setAttribute('data-ofm-urgent', 'true')
-        const modal = document.createElement('div')
-        modal.className = 'ofm_modal'
-        modal.setAttribute('role', 'alertdialog')
-        modal.setAttribute('aria-modal', 'true')
-        const head = document.createElement('div')
-        head.className = 'ofm_modalhead'
-        head.textContent = title ?? ''
-        const body = document.createElement('div')
-        body.className = 'ofm_modalbody'
-        for (const node of htmlToDom(parseSafeHtml(html ?? ''))) body.appendChild(node)
-        const foot = document.createElement('div')
-        foot.className = 'ofm_modalfoot'
-        const ok = document.createElement('button')
-        ok.type = 'button'
-        ok.className = 'ofm_btn primary'
-        ok.textContent = confirmLabel ?? 'OK'
-        ok.addEventListener('click', () => { scrim.remove(); onClose?.() })
-        foot.appendChild(ok)
-        modal.appendChild(head)
-        modal.appendChild(body)
-        modal.appendChild(foot)
-        scrim.appendChild(modal)
-        document.body.appendChild(scrim)
-      } catch { /* a modal must never break its caller */ }
-    }
-
     /** OS-level notification, only when the user both opted in and granted. */
     function osNotify(title, body) {
       try {
@@ -1779,7 +1624,6 @@ window.__ModuleLoader__.load({
     // saturation, so the panel and the server can never disagree about the
     // color. The panel renders nothing at all when the host has no lane or the
     // gateway is dark — a gauge that lies would be worse than no gauge.
-    const POOL_REPO_URL = 'https://github.com/Ebony-Vinyl/dsh-our-free-model'
     const FISH_PATH = 'M1 7c2.5-3.5 7-5 11-3.2L18.5 1v12L12 10.2C8 12 3.5 10.5 1 7zm16.4 0l5.1-3.4v6.8L17.4 7zM8.4 5.6a1 1 0 11-2 0 1 1 0 012 0z'
 
     /**
@@ -1865,20 +1709,6 @@ window.__ModuleLoader__.load({
       return { active, capacityKnown, pct, rawPct, level }
     }
 
-    /** The repository every page's star button points at, opened in a new tab. */
-    function StarButton(props) {
-      const { t, repo = POOL_REPO_URL } = props
-      const label = t('star.cta')
-      return h('a', {
-        className: 'ofm_starbtn',
-        href: `https://github.com/${repo.replace(/^https?:\/\/github\.com\//, '')}`,
-        target: '_blank',
-        rel: 'noreferrer noopener',
-        title: `${t('star.title')} · ${repo}`,
-      }, h('svg', { viewBox: '0 0 16 16', 'aria-hidden': 'true' },
-        h('path', { d: 'M8 .25a.75.75 0 01.673.418l1.882 3.815 4.21.612a.75.75 0 01.416 1.279l-3.046 2.97.719 4.192a.75.75 0 01-1.088.791L8 12.347l-3.766 1.98a.75.75 0 01-1.088-.79l.72-4.194L.818 6.374a.75.75 0 01.416-1.28l4.21-.611L7.327.668A.75.75 0 018 .25z' })),
-        label)
-    }
     /** Where the pool's capacity number comes from, in one sentence. */
     function capacityText(pool, t) {
       if (pool.poolSource === 'formula') return t('pool.formula').replace('{stars}', String(pool.stars ?? '—'))
@@ -2030,7 +1860,7 @@ window.__ModuleLoader__.load({
 
       if (auth === undefined) return h('p', { className: 'ofm_note' }, t('loading'))
       if (auth.available !== true) return h('p', { className: 'ofm_note' }, t('eac.noLane'))
-      const repo = auth.repo !== undefined && auth.repo !== '' ? auth.repo : 'Ebony-Vinyl/dsh-our-free-model'
+      const repo = auth.repo !== undefined && auth.repo !== '' ? auth.repo : 'lfapex/dsh-our-free-model'
       return h(Fragment, null,
         h('div', { className: 'ofm_row' },
           auth.authorized === true
@@ -2045,8 +1875,7 @@ window.__ModuleLoader__.load({
             h(Button, { disabled: busy, onClick: refresh }, t('eac.recheck')),
             h(Button, { disabled: busy, onClick: logout }, t('eac.logout')))
           : h('div', { className: 'ofm_row' },
-            h(Button, { kind: 'primary', disabled: busy || pending !== null, onClick: login }, busy ? t('eac.starting') : t('eac.login')),
-            h(StarButton, { t, repo })),
+            h(Button, { kind: 'primary', disabled: busy || pending !== null, onClick: login }, busy ? t('eac.starting') : t('eac.login'))),
         pending !== null
           ? h('div', { className: 'ofm_callout' },
             h('div', null,
@@ -2057,6 +1886,80 @@ window.__ModuleLoader__.load({
                 h(Button, { kind: 'ghost', onClick: () => copy(pending.url, ok => { if (ok) { setCopied(true); setTimeout(() => setCopied(false), 1600) } }) }, copied ? t('eac.copied') : t('eac.copy')))))
           : null,
         notice !== '' ? h('p', { className: 'ofm_note' }, notice) : null)
+    }
+
+    /**
+     * Points the EAC lane at a third-party OpenAI-compatible relay.
+     *
+     * The key never round-trips: the backend hands back `hasKey` and not the
+     * value, so the input starts empty every time and an empty submit means
+     * "keep what is stored" rather than "clear it". That is the same discipline
+     * the local forward port uses for its generated key.
+     */
+    function EacGatewayPanel(props) {
+      const { t, gateway, onSaved } = props
+      const [draft, setDraft] = useState({ enabled: false, baseUrl: '', apiKey: '' })
+      const [busy, setBusy] = useState(false)
+      const [error, setError] = useState('')
+      const [ok, setOk] = useState(false)
+      // Re-seed only when the server's view actually changes (first load, or a
+      // save landing), never on every render — that would wipe a half-typed
+      // base URL the moment the user focuses the key field.
+      useEffect(() => {
+        if (gateway === undefined) return
+        setDraft({ enabled: gateway.enabled === true, baseUrl: gateway.baseUrl ?? '', apiKey: '' })
+        setError('')
+        setOk(false)
+      }, [gateway?.enabled, gateway?.baseUrl, gateway?.hasKey])
+      if (gateway === undefined) return h('div', { className: 'ofm_skel', style: { minHeight: 96 } })
+      const active = gateway.enabled === true && gateway.hasBaseUrl === true && gateway.hasKey === true
+      const save = async () => {
+        setBusy(true)
+        setError('')
+        setOk(false)
+        try {
+          await post('/settings', {
+            eacGateway: {
+              enabled: draft.enabled,
+              baseUrl: draft.baseUrl.trim(),
+              // Absent key field = keep the stored one; the backend merges.
+              ...(draft.apiKey.trim() === '' ? {} : { apiKey: draft.apiKey.trim() }),
+            },
+          })
+          setOk(true)
+          onSaved?.()
+        } catch (failure) {
+          setError(String(failure?.message ?? failure))
+        } finally {
+          setBusy(false)
+        }
+      }
+      return h('div', { className: 'ofm_panel' },
+        h('div', { className: 'ofm_row' },
+          h(Pill, { strong: true, tone: active ? 'ok' : 'warn' }, active ? t('gw.active') : gateway.hasBaseUrl || gateway.hasKey ? t('gw.inactive') : t('gw.noLane')),
+          h(Switch, { checked: draft.enabled, label: t('gw.enabled'), disabled: busy, onChange: () => setDraft(d => ({ ...d, enabled: !d.enabled })) })),
+        h('p', { className: 'ofm_note' }, t('gw.hint')),
+        gateway.error !== '' && gateway.error !== undefined
+          ? h('div', { className: 'ofm_callout ofm_error' }, h('div', null, gateway.error)) : null,
+        h('div', { className: 'ofm_row' },
+          h('div', { className: 'ofm_field', style: { flex: 1, minWidth: 280 } }, h('span', null, t('gw.baseUrl')),
+            h('input', {
+              className: 'ofm_input', type: 'url', spellCheck: false, autoComplete: 'off',
+              value: draft.baseUrl, placeholder: t('gw.baseUrlPlaceholder'),
+              onChange: e => setDraft(d => ({ ...d, baseUrl: e.target.value })),
+            })),
+          h('div', { className: 'ofm_field', style: { flex: 1, minWidth: 220 } }, h('span', null, t('gw.apiKey')),
+            h('input', {
+              className: 'ofm_input', type: 'password', spellCheck: false, autoComplete: 'off',
+              value: draft.apiKey,
+              placeholder: gateway.hasKey === true ? `${t('gw.apiKeyPlaceholder')} · ${t('gw.keySet')}` : t('gw.apiKeyPlaceholder'),
+              onChange: e => setDraft(d => ({ ...d, apiKey: e.target.value })),
+            }),
+            h('span', null, gateway.hasKey === true ? t('gw.keySet') : t('gw.keyEmpty')))),
+        h('div', { className: 'ofm_row' },
+          h(Button, { kind: 'primary', disabled: busy, onClick: save }, busy ? t('probing') : t('gw.save')),
+          ok ? h('span', { className: 'ofm_note' }, t('gw.saved')) : null,
+          error !== '' ? h('span', { className: 'ofm_note' }, t('gw.failed').replace('{message}', error)) : null))
     }
 
     function Dashboard(props) {
@@ -2432,89 +2335,6 @@ window.__ModuleLoader__.load({
           h('span', { className: 'ofm_pill' }, `${t('pref.probedAt')}: ${ago(summary.probedAt, t.locale)}`)))
     }
 
-    // ── announcement center ──────────────────────────────────────────────────
-    const LEVEL_KEY = { info: 'level.info', update: 'level.update', warn: 'level.warn', urgent: 'level.urgent' }
-
-    function NewsPanel(props) {
-      const { t } = props
-      const news = useAsync(() => api('/announcements'), [])
-      const [busy, setBusy] = useState(false)
-      const [osError, setOsError] = useState('')
-      // Collapsed by default: the header row carries the status, and the body
-      // opens only while there is something unread to read.
-      const [open, setOpen] = useState(false)
-      const items = news.data?.items ?? []
-      const unread = news.data?.unread ?? 0
-      useEffect(() => {
-        if (unread > 0) setOpen(true)
-      }, [unread])
-      // Live refresh: the push subscription broadcasts to window on arrival.
-      useEffect(() => {
-        const handler = () => news.reload()
-        window.addEventListener('ofm:announcements', handler)
-        return () => window.removeEventListener('ofm:announcements', handler)
-      }, [news.reload])
-      const notifyOs = news.data?.notifyOs === true
-      const ack = async payload => {
-        setBusy(true)
-        try { await post('/announcements/ack', payload); news.reload() } finally { setBusy(false) }
-      }
-      const refresh = async () => {
-        setBusy(true)
-        try { await post('/announcements/refresh', undefined, 60_000); news.reload() } finally { setBusy(false) }
-      }
-      const enableOs = async () => {
-        setOsError('')
-        if (typeof Notification === 'undefined') { setOsError(t('news.osDenied')); return }
-        let permission = 'default'
-        try { permission = await Notification.requestPermission() } catch { permission = Notification.permission }
-        if (permission !== 'granted') { setOsError(t('news.osDenied')); return }
-        try { await post('/settings', { notifyOs: true }) } catch { /* server state lags; permission is the gate */ }
-        news.reload()
-      }
-      return h(Panel, null,
-        h('div', { className: 'ofm_row' },
-          unread > 0 ? h('span', { className: 'ofm_pill strong' }, t('news.unread').replace('{n}', String(unread))) : null,
-          news.data?.error ? h('span', { className: 'ofm_pill' }, h('span', { className: 'ofm_dot warn' }), t('news.fetchFailed')) : null,
-          h('span', { className: 'ofm_pill' }, `${t('news.lastFetch')}: ${ago(news.data?.fetchedAt, t.locale)}`),
-          h('span', { className: 'spacer', style: { marginLeft: 'auto' } }),
-          h(Button, { kind: 'ghost', onClick: () => setOpen(value => !value) }, open ? t('news.collapse') : t('news.expand')),
-          h(Button, { disabled: busy || news.status !== 'ready', onClick: refresh }, busy ? t('news.refreshing') : t('news.refresh'))),
-        open ? h(Fragment, null,
-          h('div', { className: 'ofm_row' },
-            notifyOs
-              ? h('span', { className: 'ofm_pill' }, h('span', { className: 'ofm_dot ok' }), t('news.osOn'))
-              : h(Button, { onClick: enableOs }, t('news.osEnable')),
-            osError !== '' ? h('span', { className: 'ofm_note' }, osError)
-              : notifyOs ? null : h('span', { className: 'ofm_pill' }, h('span', { className: 'ofm_dot' }), t('news.osOff')),
-            unread > 0 ? h('span', { style: { marginLeft: 'auto' } }, h(Button, { kind: 'ghost', disabled: busy, onClick: () => ack({ all: true }) }, t('news.allRead'))) : null),
-          news.status === 'loading' && news.data === undefined ? h('p', { className: 'ofm_note' }, t('loading')) : null,
-          news.status === 'error' ? h('p', { className: 'ofm_note' }, news.error) : null,
-          news.status === 'ready' && items.length === 0 ? h('p', { className: 'ofm_note' }, t('news.empty'), ' ', h('span', { style: { color: 'var(--dsw-alias-label-tertiary)' } }, t('news.emptyHint'))) : null,
-          h('div', { className: 'ofm_news' }, items.map(item => h(NewsItem, {
-            key: item.id, item, t, locale: t.locale, busy,
-            onAck: () => ack({ id: item.id }),
-          })))) : null)
-    }
-
-    function NewsItem(props) {
-      const { item, t, locale, busy, onAck } = props
-      const body = useMemo(() => parseSafeHtml(item.html ?? ''), [item.html])
-      const acknowledged = item.acked === true
-      return h('article', { className: 'ofm_newsitem' + (acknowledged ? '' : ' unread') },
-        acknowledged ? null : h('span', { className: 'ofm_newsdot', 'aria-hidden': 'true' }),
-        h('div', { className: 'ofm_newshead' },
-          h('span', { className: 'ofm_level ' + item.level }, t(LEVEL_KEY[item.level] ?? 'level.info')),
-          h('span', { className: 'ofm_newstitle' }, item.title),
-          acknowledged ? null : h(Button, { kind: 'ghost', disabled: busy, onClick: onAck }, t('news.markRead'))),
-        h('div', { className: 'ofm_newsmeta' },
-          h('span', null, item.createdAt > 0 ? new Date(item.createdAt).toLocaleDateString() : ''),
-          h('span', null, ago(item.createdAt, locale)),
-          item.pinned === true ? h('span', null, '📌') : null),
-        h('div', { className: 'ofm_newsbody' }, ...htmlToReact(body)),
-        item.link?.url ? h('div', null, h('a', { href: item.link.url, target: '_blank', rel: 'noopener noreferrer' }, item.link.label || t('news.link'))) : null)
-    }
-
     // ── in-app upgrade ───────────────────────────────────────────────────────
     function UpgradePanel(props) {
       const { t, settings, onApply, busy } = props
@@ -2567,13 +2387,7 @@ window.__ModuleLoader__.load({
           h('span', { className: 'ofm_pill' }, `${t('upgrade.checkedAt')}: ${data?.checkedAt ? ago(data.checkedAt, t.locale) : t('upgrade.never')}`)),
         h('div', { className: 'ofm_row' },
           h(Button, { disabled: phase !== '' || status.status !== 'ready', onClick: check }, phase === 'checking' ? t('upgrade.checking') : t('upgrade.check')),
-          data?.available === true ? h(Button, { kind: 'primary', disabled: phase !== '' || data.applying === true || data.recoveryRequired === true, onClick: applyUpgrade }, phase === 'applying' ? t('upgrade.applying') : t('upgrade.apply')) : null,
-          h('a', {
-            className: 'ofm_btn ofm_starlink',
-            href: 'https://github.com/Ebony-Vinyl/dsh-our-free-model',
-            target: '_blank',
-            rel: 'noopener noreferrer',
-          }, h('span', { 'aria-hidden': 'true' }, '\u2606'), t('upgrade.star'))),
+          data?.available === true ? h(Button, { kind: 'primary', disabled: phase !== '' || data.applying === true || data.recoveryRequired === true, onClick: applyUpgrade }, phase === 'applying' ? t('upgrade.applying') : t('upgrade.apply')) : null),
         phase === 'applying' ? h('div', { className: 'ofm_prog' }, h('i')) : null,
         data?.recoveryRequired === true ? h('div', { className: 'ofm_callout ofm_error' },
           h('div', null, t('upgrade.recovery'),
@@ -3636,9 +3450,8 @@ window.__ModuleLoader__.load({
             'aria-selected': tab === id ? 'true' : 'false',
             ref: node => { tabRefs.current[id] = node },
             onClick: () => setTab(id),
-          }, label, num === null ? null : h('span', { className: 'ofm_tabnum' }, String(num))))),
-        h('span', { className: 'ofm_navspacer' }),
-        h(StarButton, { t }))
+          }, label, num === null ? null : h('span', { className: 'ofm_tabnum' }, String(num)))))
+      )
 
       const page = tab === 'channels'
         ? h(ChannelsPage, { t, ctx, summary })
@@ -3692,8 +3505,7 @@ window.__ModuleLoader__.load({
               h('div', { className: 'ofm_pooltop' },
                 h('span', { className: `ofm_poolbadge ${level}` },
                   h('span', { className: 'ofm_pooldot' }),
-                  `${t('free.tankLabel')} ${pct ?? '—'}%`),
-                h(StarButton, { t })),
+                  `${t('free.tankLabel')} ${pct ?? '—'}%`)),
               h('div', { className: 'ofm_poolstats' },
                 h('div', { className: 'ofm_stat' }, h('b', null, String(ok)), h('span', null, t('state.available'))),
                 h('div', { className: `ofm_stat${(counts['region-blocked'] ?? 0) > 0 ? ' hot' : ''}` },
@@ -3714,7 +3526,6 @@ window.__ModuleLoader__.load({
         h(Section, { title: t('section.forward'), hint: t('section.forwardHint') }, h(Forward, { settings: data.settings, t, onApply: apply, busy })),
         h(Section, { title: t('section.egress'), hint: t('section.egressHint') }, h(Egress, { settings: data.settings, t, onApply: apply, busy })),
         h(Section, { title: t('section.prefs'), hint: t('section.prefsHint') }, h(Preferences, { summary: data, t, onApply: apply, busy })),
-        h(Section, { title: t('section.news'), hint: t('section.newsHint') }, h(NewsPanel, { t })),
         h(Section, { title: t('section.upgrade'), hint: t('section.upgradeHint') }, h(UpgradePanel, { t, settings: data.settings, onApply: apply, busy })))
     }
 
@@ -3754,8 +3565,7 @@ window.__ModuleLoader__.load({
                 eacAuth?.available === true && eacAuth?.authorized !== true
                   ? h(Button, { kind: 'primary', disabled: eacLogin.busy || eacLogin.pending !== null, onClick: eacLogin.login },
                     eacLogin.busy ? t('eac.starting') : t('eac.login'))
-                  : null,
-                h(StarButton, { t })),
+                  : null),
               reading === null ? null : h(Fragment, null,
                 h('div', { className: 'ofm_poolstats' },
                   h('div', { className: `ofm_stat${reading.level === 'over' ? ' hot' : ''}` },
@@ -3771,75 +3581,9 @@ window.__ModuleLoader__.load({
                 h(Button, { disabled: busy, onClick: refresh }, summary.status === 'loading' ? t('probing') : t('refresh')),
                 h(Button, { disabled: busy, onClick: reprobe }, t('reprobe')))))),
         h(Section, { title: t('section.eac'), hint: t('section.eacHint') }, h(EacAuth, { t, auth: eacAuth, eacLogin })),
-        h(Section, { title: t('section.models'), hint: t('section.modelsHint') }, h(Roster, { summary: data, t, onBench: bench, benches, auth: eacAuth, eacLogin, only: 'eac' })),
-        h(Section, { title: t('section.news'), hint: t('section.newsHint') }, h(NewsPanel, { t })))
-    }
-
-    // ── announcement ──────────────────────────────────────────────────────────
-    const PAGES = ['ann.preamble', 'ann.models', 'ann.steps', 'ann.features', 'ann.updates']
-
-    function Announcement(props) {
-      const { t, complete, openSection, page, setPage, summary, acknowledged } = props
-      useEffect(() => { if (acknowledged) complete() }, [acknowledged, complete])
-      /* Not `#root.inert`, even though the shell does that for its own onboarding
-         modals: those portal out of `#root`, while a slot-mounted step stays
-         inside it, and inert has no opt-out for descendants. Measured with it on,
-         `document.elementFromPoint` over the next-page button returned BODY — the
-         dialog could not be clicked at all. The full-viewport scrim already
-         swallows every pointer event aimed at the app behind it. */
-      if (acknowledged) return null
-      const last = page === PAGES.length - 1
-      const finish = async () => {
-        try { await post(`/announcement/ack?version=${encodeURIComponent(summary?.announcementVersion ?? '')}`) } catch { /* ack is best effort */ }
-        complete()
-      }
-      return h('div', { className: 'ofm_scrim' },
-        h('div', { className: 'ofm_ann', role: 'dialog', 'aria-modal': 'true', 'aria-label': t('title') },
-          h('div', { className: 'ofm_annhead' },
-            h('h2', { className: 'ofm_anntitle' }, t('title')),
-            h('p', { className: 'ofm_annsub' }, t(PAGES[page]))),
-          h('div', { className: 'ofm_steps', 'aria-hidden': 'true' },
-            PAGES.map((key, index) => h('span', { key, className: 'ofm_step', 'data-on': index <= page ? 'true' : 'false' }))),
-          h('div', { className: 'ofm_annbody' }, h(PageBody, { page, t, summary })),
-          h('div', { className: 'ofm_annfoot' },
-            h('span', { className: 'ofm_note' }, t('ann.page').replace('{n}', page + 1).replace('{total}', PAGES.length)),
-            h('span', { className: 'spacer' }),
-            page === 0 ? h(Button, { kind: 'ghost', onClick: finish }, t('ann.later')) : h(Button, { kind: 'ghost', onClick: () => setPage(p => Math.max(0, p - 1)) }, '‹'),
-            last
-              ? h(Button, { kind: 'primary', onClick: async () => { await finish(); openSection?.('our-free-model') } }, t('ann.openSettings'))
-              : h(Button, { kind: 'primary', onClick: () => setPage(p => Math.min(PAGES.length - 1, p + 1)) }, '›'))))
-    }
-
-    const list = (t, keys) => keys.map(key => h('li', { key }, t(key)))
-
-    function PageBody(props) {
-      const { page, t, summary } = props
-      if (page === 0) return h(Fragment, null,
-        h('h3', null, t('ann.preamble')),
-        h('p', null, t('ann.pitch')),
-        h('ul', null, list(t, ['ann.p1', 'ann.p2', 'ann.p3'])))
-      if (page === 1) {
-        // Advertised models first: this page is the tour a new user reads before
-        // they pick anything, and a refused id at the top of it is a bad first
-        // impression of a lane that is actually working.
-        const rows = (summary?.catalog ?? []).slice().sort((a, b) => (a.route === null ? 1 : 0) - (b.route === null ? 1 : 0))
-        if (rows.length === 0) return h('p', null, t('loading'))
-        return h(Fragment, null,
-          h('h3', null, t('ann.models')),
-          h('div', { className: 'ofm_kv' }, rows.slice(0, 8).map(m => h('div', { key: m.id, className: 'ofm_kvc' },
-            h('b', null, m.name),
-            h('span', null, `${t(`state.${m.availability}`)} · ${m.vision ? t('tag.vision') : t('tag.text')} · ${kilo(m.contextWindow)}`)))),
-          rows.some(m => m.availability === 'region-blocked') ? h('p', { className: 'ofm_note' }, t('hint.region')) : null)
-      }
-      if (page === 2) return h(Fragment, null,
-        h('h3', null, t('ann.steps')),
-        h('ul', null, list(t, ['ann.s1', 'ann.s2', 'ann.s3', 'ann.s4'])))
-      if (page === 3) return h(Fragment, null,
-        h('h3', null, t('ann.features')),
-        h('ul', null, list(t, ['ann.f1', 'ann.f2', 'ann.f3', 'ann.f4', 'ann.f5'])))
-      return h(Fragment, null,
-        h('h3', null, t('ann.updates')),
-        h('ul', null, list(t, ['ann.u1', 'ann.u2', 'ann.u3', 'ann.u4'])))
+        h(Section, { title: t('gw.title'), hint: t('gw.hint') },
+          h(EacGatewayPanel, { t, gateway: data.settings?.eacGateway, onSaved: () => { summary.reload() } })),
+        h(Section, { title: t('section.models'), hint: t('section.modelsHint') }, h(Roster, { summary: data, t, onBench: bench, benches, auth: eacAuth, eacLogin, only: 'eac' })))
     }
 
     // ── registration ──────────────────────────────────────────────────────────
@@ -3866,22 +3610,19 @@ window.__ModuleLoader__.load({
       }, 'our-free-model: styles')
 
       // ── push subscription ───────────────────────────────────────────────────
-      // One EventSource for the whole app surface: new announcements become
-      // toasts (and OS notifications when opted in), urgent ones open a modal,
-      // update availability and completed upgrades broadcast onto window so
-      // whichever panel is mounted can refresh itself. EventSource reconnects
-      // by itself; the hot reload closes every stream server-side, so a swap
-      // simply shows up as a fresh `hello` a second later.
+      // One EventSource for the whole app surface: update availability and
+      // completed upgrades broadcast onto window so whichever panel is mounted
+      // can refresh itself. EventSource reconnects by itself; the hot reload
+      // closes every stream server-side, so a swap simply shows up as a fresh
+      // `hello` a second later.
       ctx.effect(() => {
         if (typeof EventSource !== 'function') return
-        let osEnabled = false
         let disposed = false
         let source
         let retryTimer
         // 重连轮次必须活在 open() 之外：open() 每次重连都会重入，计数器若在里面
         // 会被清零，退避就永远是第一档而不是 30s 翻倍到 5 分钟。
         let retries = 0
-        api('/announcements').then(payload => { osEnabled = payload?.notifyOs === true }).catch(() => {})
         const open = () => {
           if (disposed) return
           source = new EventSource(`${API}/events`)
@@ -3902,25 +3643,6 @@ window.__ModuleLoader__.load({
             }, Math.min(30_000 * 2 ** retries, 300_000))
             retries += 1
           }
-          source.addEventListener('announcements', event => {
-            errCount = 0
-            let data
-            try { data = JSON.parse(event.data) } catch { return }
-            for (const item of data.items ?? []) {
-              osNotify(t('toast.annTitle'), item.title)
-              if (item.level === 'urgent') {
-                showUrgentModal({
-                  title: `${t('news.urgentTitle')} · ${item.title}`,
-                  html: item.html ?? '',
-                  confirmLabel: t('news.gotIt'),
-                  onClose: () => { void post('/announcements/ack', { id: item.id }).catch(() => {}) },
-                })
-              } else {
-                showToast({ title: t('toast.annTitle'), body: item.title, tone: item.level === 'warn' ? 'warn' : undefined })
-              }
-            }
-            window.dispatchEvent(new CustomEvent('ofm:announcements', { detail: data }))
-          })
           source.addEventListener('update', event => {
             let data
             try { data = JSON.parse(event.data) } catch { return }
@@ -3982,49 +3704,6 @@ window.__ModuleLoader__.load({
         label: () => t('nav'),
         locale: NS,
       }, props => h(SettingsPage, { ...props, locale: localeTag(ctx), ctx })))
-
-      ctx.slots.inject('settings.onboarding', () => ctx.slots.register({
-        name: 'settings.onboarding',
-        id: 'our-free-model-announcement',
-        order: -50,
-        locale: NS,
-      }, props => h(AnnouncementGate, { ...props, t: Object.assign(x => t(x), { locale: localeTag(ctx) }) })))
-    }
-    /**
-     * Owns the announcement's readiness.
-     *
-     * The onboarding coordinator mounts one ordered step at a time and waits for
-     * the registrant to either show something or call `complete`. This renders
-     * null until the ack state is known — a step that paints a skeleton then
-     * removes it is worse than one that waits — and completes immediately when
-     * the user already acknowledged the current copy version.
-     */
-    function AnnouncementGate(props) {
-      const { t, complete, openSection, explicit } = props
-      const [ack, setAck] = useState(undefined)
-      const [summary, setSummary] = useState(undefined)
-      const [page, setPage] = useState(0)
-      useEffect(() => {
-        let alive = true
-        api('/announcement')
-          .then(payload => { if (alive) setAck(payload) })
-          .catch(() => { if (alive) setAck({ acknowledged: true, version: '' }) })
-        api('/summary').then(payload => { if (alive) setSummary(payload) }).catch(() => {})
-        // 超时兜底：3 秒拿不到 ack（后端挂起/超时/异常）→ 当作已 ack 主动放行——
-        // 本组件是 settings.onboarding 协调器最先执行的 step（order:-50），complete 依赖 ack；
-        // ack 永远 undefined 会永久卡住 onboarding 流程（连带阻塞后续 step 与主题启动画面）。
-        const timer = setTimeout(() => {
-          if (alive) setAck(current => current ?? { acknowledged: true, version: '' })
-        }, 3000)
-        return () => { alive = false; clearTimeout(timer) }
-      }, [])
-      const acknowledged = ack?.acknowledged === true && explicit !== true
-      useEffect(() => {
-        if (ack === undefined) return
-        if (acknowledged) complete?.()
-      }, [ack, acknowledged, complete])
-      if (ack === undefined || acknowledged) return null
-      return h(Announcement, { t, complete, openSection, page, setPage, summary, acknowledged: false })
     }
     exports.apply = apply
     exports.inject = inject

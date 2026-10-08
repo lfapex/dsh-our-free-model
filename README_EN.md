@@ -44,7 +44,6 @@
 - **The upstreams are named** — the free lane is OpenCode's Zen gateway at `https://opencode.ai`, and the Kilo channel is Kilo AI's public gateway at `https://kilo.ai`; both are dialled directly, with no third party relaying your traffic. Who serves your requests, and where your data goes, is spelled out in [Where the models come from](#where-the-models-come-from) and the [Disclaimer](#disclaimer).
 - **A roster that tracks upstream** — model set, context length and capabilities are re-fetched on every refresh rather than frozen into the plugin.
 - **The picker offers only what actually answers** — a model the upstream listing names but the gateway refuses to route outright (`Model is unavailable`, a 404 for that id) leaves the dropdown and stays visible in the settings page with its refusal recorded. Everything that is *not* a statement about the model keeps its model reachable: a 5xx from the gateway, a 429 quota window, a timeout or a dropped connection. Region-gated ones move to their own `region-limited` group. If a whole round refuses everything, nothing is hidden: the picker never goes empty.
-- **Announcement center with live push** — the repository owner edits one JSON file and pushes; every installation receives it within one poll cycle. Bodies are HTML rendered through a strict allowlist; `urgent` items open a full-screen modal; optional OS-level notifications.
 - **In-app upgrades** — one click in the settings page: download → SHA-256 verification → backup → atomic replace → read-back verification → hot reload, with automatic rollback if any step fails.
 - **Hot reload** — upgrades and code changes take effect immediately, no app restart; also available as a manual button and an optional file watcher.
 - **Region-aware, per egress** — models gated by geography are separated into their own `region-limited` group instead of failing mid-turn. Switch your network exit and the next probe reclassifies them automatically.
@@ -54,6 +53,7 @@
 - **Usage dashboard, local only** — token heatmap, cumulative curve by total or per model, output speed and time-to-first-token sampled per call. Nothing is uploaded.
 - **OpenAI-compatible forward port** — expose these models to any other local tool through a base URL plus a generated API key.
 - **EAC lane (desktop hosts)** — a co-paid lane that unlocks in the DeepSeek Harness desktop app and DSHEAC AIO, with models prefixed `EAC`; its credential is sealed and guarded by a host-fingerprint gate, and turns are checked server-side against a GitHub authorization (sign in and star the repository). It does not exist in the CLI or any other host.
+- **The EAC lane can point at your own relay** — Settings → EAC Models → Custom relay takes any OpenAI-compatible base URL plus an API key. Once enabled, every EAC model rides that relay: no GitHub sign-in, no star, and the roster is whatever the relay's `/models` lists. The base URL must be https (http is allowed for `127.0.0.1` / `localhost`), a URL carrying `user:pass@` is refused, and the key — stored as given in settings.json — is never echoed by any route; the page only ever learns `hasKey`. Leaving the key field blank on a save keeps the stored one.
 - **The Kilo channel (keyless free pool)** — the free model pool of Kilo AI's public gateway (the listing's `isFree` slice, fetched live, including the `kilo-auto/free` auto-router) is built in; no account, no key. Model cards carry a Kilo badge. Thinking effort works like the EAC lane: the model's own level menu (Off / Low / Medium / High, default High), sent for real through the gateway's unified `reasoning` parameter — Off was verified family by family to zero out thinking (nemotron, ling, dots, poolside, apodex, cohere); the stepfun and liquid endpoints refuse to disable thinking (HTTP 400) and the two auto-routers ignore it, so those models' menus omit the Off rung. The pool is the upstream's free offer, and its model cards state that prompts may be logged to improve their services — never send sensitive content; see the [Disclaimer](#disclaimer).
 - **Clean names in the UI** — no mojibake, no upstream vendor strings leaking into your model picker.
 
@@ -70,17 +70,15 @@ A model the gateway names but refuses to route appears in neither group. It stay
 **Not in the picker** in the settings page, with the refusal and the probe time, and returns to
 the picker by itself as soon as a probe gets through.
 
-**Settings page — `Settings → Our Free Model`**, seven sections:
+**Settings page — `Settings → Our Free Model`**, six sections:
 
 1. **Model roster** — per-model availability, vision vs text-only, context window, max output, the output ceiling each effort rung really sends, measured time-to-first-token, and an on-demand single-call benchmark.
 2. **EAC lane authorization** — one-click GitHub sign-in (the browser does the work; nothing to paste), the signed-in name and star verdict, a re-check button and sign-out; model cards carry a lock until authorized. The free lane is unaffected.
-2. **Announcement center** — the owner-pushed feed: unread counter, urgency badges, mark-read (single/all), check-now button, OS-notification toggle. Bodies render HTML through the allowlist.
-3. **Usage board** — headline counters, a 17-week token heatmap, a cumulative curve switchable between tokens and request counts and between total and any single model, speed sparklines, and a per-model table.
-4. **Local forward** — enable/disable, bind host and port, copy base URL, show / copy / rotate the API key, and a ready-to-run `curl` example.
-5. **Plugin settings** — master switch, whether region-limited models are exposed, probe interval, default output ceiling, plus the detected egress IP and country.
-6. **Plugin upgrade** — installed/latest version, check for updates, one-click upgrade with progress and failure reasons, last-upgrade history, hot-reload button and file-watcher switch.
-
-**First-run announcement** — a five-page walkthrough (preamble, model roster, how to use, what it does, news & upgrades) that acknowledges once and never reappears until the copy version is bumped.
+3. **Custom relay** — points the EAC lane at an OpenAI-compatible relay you operate: enable switch, base URL and API key, effective on save. While it is on, the GitHub sign-in entry above hides itself.
+4. **Usage board** — headline counters, a 17-week token heatmap, a cumulative curve switchable between tokens and request counts and between total and any single model, speed sparklines, and a per-model table.
+5. **Local forward** — enable/disable, bind host and port, copy base URL, show / copy / rotate the API key, and a ready-to-run `curl` example.
+6. **Plugin settings** — master switch, whether region-limited models are exposed, probe interval, default output ceiling, plus the detected egress IP and country.
+7. **Plugin upgrade** — installed/latest version, check for updates, one-click upgrade with progress and failure reasons, last-upgrade history, hot-reload button and file-watcher switch.
 
 ## Install
 
@@ -122,7 +120,7 @@ To install manually as a real directory, in `<DSH_HOME>/profiles/<profile>/`:
 When the plugin arrives through an integration pack (an EAC pack, Mojobox, …),
 the *pack* owns update timing and bytes: install with the bundle config
 `distribution: 'managed'` (or write the same field into settings.json), and the
-in-app updater, the announcement feed and the hot reload all stand down — two
+in-app updater and the hot reload both stand down — two
 writers to one installed directory corrupt it; the model lane is unaffected.
 Acceptance lives in `scripts/offline-test.mjs`; the catalog-ready records
 (manifest 0.15 / provenance / license / integrity) are under `catalog/`.
@@ -243,7 +241,7 @@ payload echo, the log line and the shoulder — not another process on the same
 machine.
 
 Only three kinds of traffic are taken over: model inference, the model listing
-fetch, and the egress IP probe; announcements, upgrades, and the EAC lane stay
+fetch, and the egress IP probe; upgrades and the EAC lane stay
 direct so the subscription identity never mixes into the release channel.
 
 **Scope.** The outlet serves this plugin's opencode traffic and nothing else on
@@ -273,13 +271,6 @@ Reprobe (below) does the same on demand.
 your current exit. Toggling a VPN and re-probing moves region-gated models
 between the two groups on its own.
 
-**Receive announcements.** Everything is automatic: after the owner pushes, a
-running installation picks the item up within one poll cycle (30 minutes by
-default, or immediately via *Check for new announcements*). Regular items raise
-a toast, `urgent` items open a full-screen modal, and both land in the
-announcement center with an unread marker. Enable *OS notifications* there to
-also get system-level toasts.
-
 **Upgrade the plugin.** `Settings → Our Free Model → Plugin upgrade` →
 *Check for updates* → *Upgrade now*. The whole flow runs inside the app
 (download → verify → backup → replace → hot reload); no reinstall, no restart.
@@ -290,7 +281,7 @@ A failed upgrade restores the previous version and reports why.
 ```text
 index.js      host half: adapter registration, catalog + availability probes,
               settings/stats stores, webServer API routes, forward lifecycle,
-              announcement / upgrade / hot-reload wiring
+              upgrade / hot-reload wiring
 adapter/      kernel seam: the only module in the package allowed to import
               @deepseek-ai/* (kernel.js: attribution User-Agent with a literal fallback)
 src/adapter.js  structural LlmAdapter: providerInfo, listModels, resolveModel,
@@ -304,9 +295,7 @@ src/effort.js   effort level -> output budget
 src/forward.js  standalone OpenAI-compatible listener
 src/trust.js    request trust fence for the plugin's routes (connection bridge
                 + structural fallback)
-src/push.js     SSE push hub: arrivals, update availability, upgrade done
-src/feed.js     remote announcement feed: multi-source fetch, validation, cache,
-                arrival detection
+src/push.js     SSE push hub: update availability, upgrade done
 src/updater.js  in-app upgrade: manifest validation, SHA-256 checks, backup,
                 atomic replace, rollback
 src/reload.js   self hot reload: mirrors the kernel HMR sequence (cache purge,
@@ -525,7 +514,12 @@ row.
 | Usage accounting | offline, `retry-safety-test.mjs` | A `usage` object without `prompt_tokens_details` no longer computes `inputTokens: NaN`; the forward port answers in `prompt_tokens/completion_tokens` and reports a refused turn as an error instead of an empty 200. On the Messages wire `message_delta` carries only the output side, and the old whole-record overwrite zeroed the prompt tokens of every Claude turn; records are now merged field by field |
 | This round: a 5xx reason phrase is no longer read as a verdict (the same regression issue #3 was about) | offline, `sniff-test.mjs` + revert check | `stateOf` matched its message fallback without regard for the status, and "Service Unavailable" is the reason phrase every reverse proxy answers a 503 with — so an overloaded gateway was read as the gateway naming each model refused, and those models left the picker one at a time (the cost issue #3 removed, back through the message fallback). The fallback now only speaks when the status has not already answered for the gateway; a body that names the model — including `type: ModelError` under a 5xx — is still a refusal. Four new assertions, two of which go red the moment the old implementation is restored |
 
-### v1.1.2 (announcements, in-app upgrades, hot reload, trust fence)
+### v1.1.2 (in-app upgrades, hot reload, trust fence)
+
+> This table is the historical record of what was measured for v1.1.2. Its
+> announcement feed / announcement center / OS-notification rows describe a
+> subsystem that has since been removed wholesale; the remaining rows still
+> describe current behavior.
 
 Every v1.1.2 capability was **operated for real**, including click-through in a
 browser and inside the DSHEAC AIO desktop window:
@@ -570,7 +564,6 @@ it never touches files.
 - **Source is plain JavaScript.** It has to be, to load as a local plugin. Anyone with the folder can read the gateway logic; treat that as an accepted property of this distribution form, not as something obfuscation would fix.
 - **Desktop installs need a real directory**, for the reason given in [Install](#install).
 - **Upgrade and hot-reload trust boundary**: as of v1.3.2 the in-app upgrader's trust root is the Ed25519 public key pinned inside the plugin, not "HTTPS to the repository" — a manifest must carry the release key's signature before anything is installed, so a poisoned mirror (jsDelivr included) fails the upgrade instead of executing code. Whoever holds the **release private key** can push arbitrary code, the same trust model as whoever can push the repository, but a repository account takeover is now a failed-upgrade outage for every user rather than a direct RCE. File integrity is enforced by signature + SHA-256 manifest; content safety by the client-side allowlist renderer and the host's plugin isolation.
-- **The AIO build's WebView2 permission policy may deny notification permission** (measured `denied` on this machine). The announcement center says so plainly; plain-browser access to dsh web is unaffected.
 - **The forward port is not required to be 18899.** When the port is taken the listener moves to the next free one and writes that port back into the settings (the settings page carries the note). That is deliberate: a port change beats a forward listener that silently stays down. Which process holds the port is the operating system's answer to give; the plugin only reports what it said.
 - **The plugin routes' auth depends on the composition**: with a connection service mounted (dsh web, the AIO desktop) it matches the kernel's `/api` (the app's own cookie/token); in minimal compositions without one, a structural fence applies (loopback + same-origin), and other local processes can still reach the routes — the same behaviour the kernel has in those compositions. **This covers `/forward/key` and `/forward/lan/key` too**: in such a composition any local process can fetch both keys with one request and spend the machine's free quota from another machine. Treat the two keys as local-process-readable files there (same trust level as `settings.json`), or mount a connection service at deploy time when you need more isolation.
 
@@ -579,9 +572,8 @@ it never touches files.
 ```bash
 npm test                            # every offline suite below, plus the manifest check
 node scripts/client-lint.mjs        # browser half: copy/style key coverage, bundle executes
-node scripts/sanitize-test.mjs      # announcement HTML allowlist renderer vs an XSS corpus
+node scripts/sanitize-test.mjs      # HTML allowlist renderer (upgrade notes) vs an XSS corpus
 node scripts/trust-test.mjs         # request trust fence for the plugin's routes
-node scripts/feed-test.mjs          # announcement feed: parsing, failover, cache, arrivals
 node scripts/updater-test.mjs       # in-app upgrade: manifests, SHA-256, backup/rollback
 node scripts/build-manifest.mjs     # release: regenerate feed/manifest.json
 node scripts/retry-safety-test.mjs  # failures, retry policy and usage counts are durable-log safe
@@ -629,7 +621,7 @@ request against the live gateway on 2026-09-24:
 | --- | --- | --- |
 | Inference | `POST …/zen/v1/chat/completions`, `…/zen/v1/responses`, `…/zen/v1/messages` (per model, see `endpointFor`) | `Authorization: Bearer public` — this lane is a public, key-free allowance; the plugin holds no secret of yours |
 | Model list | `GET …/zen/v1/models` | same |
-| Announcements and the update manifest | this repository's `feed/*.json`: `raw.githubusercontent.com` first, `cdn.jsdelivr.net` as fallback | none |
+| Update manifest | this repository's `feed/manifest.json`: `raw.githubusercontent.com` first, `cdn.jsdelivr.net` as fallback | none — the manifest carries its own Ed25519 signature |
 | Egress region check | `api.ipify.org` / `ipinfo.io` / `ipapi.co`, only to read back your own public IP and country code | none |
 
 **The Kilo channel: Kilo AI's public gateway**, `https://api.kilo.ai/api/gateway`
@@ -704,9 +696,10 @@ On privacy and trust, plainly:
 - **The EAC lane's per-user gate lives server-side.** The plugin carries only a shared signing secret, and any install can extract it — so the one place a per-person gate can actually hold is the gateway in front of the relay credential. A chat turn needs a token minted after a GitHub sign-in verified to have starred the repository; the star is re-checked on a configurable window (12 h by default), a removed star revokes at the next sweep, tokens are revocable at any time, and per-account rate and concurrency ceilings bound a shared token. The relay key never reaches the plugin, and the token never reaches the browser — the settings page sees a login name and a verdict.
 - The forward key is minted at runtime by `crypto`, compared with `timingSafeEqual`, and stored in a `0600` file. No hardcoded credential ships in this repository. `/` and `/health` answer ahead of the key check because they are liveness probes — they answer only "is it there"; the model roster requires the key.
 - The plugin's HTTP routes carry a **request trust fence** (fixed in v1.1): the plugin's `/api/our-free-model` prefix outranks the kernel's `/api` in webServer's longest-prefix dispatch and used to bypass kernel auth. Every request now goes through the composition's `connection` admission first (exactly the kernel's `/api` check: cookie/token); compositions without a connection service fall back to a structural fence — loopback Host, cross-site `sec-fetch-site` refused, `Origin`/`Referer` must match the Host authority and port, and a **missing or empty Host is refused too** (fail closed; there is no fallback to the socket's local address). Measured: foreign Host/Origin 403, cookieless loopback 401. `connection` is resolved per request, because the browser half provides it only after plugins load — reading it once at apply time silently degrades the fence to its structural layer for the life of the process.
-- **Announcement HTML renders through a strict client-side allowlist**: `scripts/sanitize-test.mjs` runs an XSS corpus (script injection, event handlers, `javascript:`/`data:` URLs, iframe/svg/form, style injection, mangled tags) and asserts all of it is dropped; nothing ever reaches an `innerHTML` sink. The feed URL is user-overridable, so the renderer treats feed content as untrusted.
+- **Upgrade notes and other trusted HTML render through a strict client-side allowlist**: `scripts/sanitize-test.mjs` runs an XSS corpus (script injection, event handlers, `javascript:`/`data:` URLs, iframe/svg/form, style injection, mangled tags) and asserts all of it is dropped; nothing ever reaches an `innerHTML` sink. The renderer treats its input as untrusted.
 - **The in-app upgrade integrity chain (signed as of v1.3.2)**: manifest Ed25519 signature verification (public key pinned in `src/updater.js`; unsigned or unverified manifests are refused outright, so no mirror can serve an installable forgery) → manifest validation (semver, path traversal, hash shape, `base` restricted to manifest-relative paths) → per-file SHA-256 + byte size on download → read-back verification of staging → read-back verification after install → backup restore on any failure. The manifest is re-fetched immediately before installing so a stale one can never vouch for different bytes. Boundaries in [Known limitations](#known-limitations).
-- **The update channel is fully decoupled from `feedUrl`** (v1.3.2): the setting redirects the announcement feed only, never the upgrade manifest — previously one settings value could point the update channel at any server with self-consistent hashes, turning "wrote a config field" into "executed arbitrary code in the host process". The announcement override itself is now restricted to https (loopback http excepted, so a locally-hosted mirror and the test suites still work) and may not carry credentials. **The target host is not restricted**: any https address may serve as `feedUrl`, and the plugin polls it on the `feedPollMinutes` period — so in a composition without a connection service (see the auth note above), a local caller who can edit settings can point the process at any external address indefinitely. This is trusted the same way as the plugin's other outbound calls: someone who can write `settings.json` can already install code.
+- **The update channel can no longer be repointed by settings** (v1.3.2): the upgrade manifest's sources are hard-coded in the plugin, and no field in `settings.json` can redirect them — previously one settings value could point the update channel at any server with self-consistent hashes, turning "wrote a config field" into "executed arbitrary code in the host process". The announcement feed and its `feedUrl` override are gone with the announcement system, so that boundary now has only the upgrade side left to guard, and an Ed25519 signature guards it instead of a settings value.
+- **The custom EAC relay is trusted the way settings are trusted**: whoever can write `settings.json` (and therefore `eacGateway.baseUrl`) can already install code, so the base URL is not domain-allowlisted. The input side is strict — https only (loopback http excepted, so a local test relay works), no `user:pass@` embedded in the URL, 2048-character cap on the URL and 4096 on the key. The key itself is written to the `0600` settings file and never leaves the process in cleartext: every route reports `hasKey` as a boolean and nothing else.
 - **The forward listener binds loopback by resolution, not by spelling** (v1.3.2): a hostname such as `localhost` is resolved with `dns.lookup` first and every answer must be loopback; the listener binds the resolved IP — so a hosts file or enterprise DNS pointing `localhost` at a routable interface can no longer pass the check while the listener hands the lane to the subnet.
 - Uninstalling removes the bundle entry; the plugin leaves no patches behind. Its data directory is plain JSON you can delete.
 

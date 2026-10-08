@@ -18,10 +18,9 @@ const activeTab = process.argv[2] ?? 'gateway'
 // ── fake backend: same-origin payloads the pages read ────────────────────────
 const summary = {
   catalog: [{ id: 'deepseek-v4.1-flash', name: 'DeepSeek V4.1 Flash', availability: 'available', vision: false, route: 'our-free-model', channel: undefined, contextWindow: 1000000, maxOutput: 32768, reasoning: true }],
-  settings: { enabled: true, forward: { enabled: false, host: '127.0.0.1', port: 18899, lan: { enabled: false, port: 0 } }, egress: { enabled: false }, probeIntervalMinutes: 15, defaultMaxTokens: 32768, notifyOs: false, autoReloadWatch: false, updateCheckHours: 6, reloadCount: 0, reloadedAt: 0 },
+  settings: { enabled: true, forward: { enabled: false, host: '127.0.0.1', port: 18899, lan: { enabled: false, port: 0 } }, egress: { enabled: false }, probeIntervalMinutes: 15, defaultMaxTokens: 32768, autoReloadWatch: false, updateCheckHours: 6, reloadCount: 0, reloadedAt: 0, eacGateway: { enabled: false, hasBaseUrl: false, baseUrl: '', hasKey: false, error: '' } },
   egress: { country: 'CN' }, outlet: { running: false }, probedAt: Date.now(),
-  announcementVersion: 'x', version: '2.0.0', distribution: 'self',
-  announcements: { unread: 0, fetchedAt: 0 },
+  version: '2.0.0', distribution: 'self',
   laneAvailable: true,
   eacAuth: { available: true, authorized: true, login: 'probe', required: true, lastCheck: Date.now() },
   channels: { state: 'ready', error: '' },
@@ -30,11 +29,9 @@ const summary = {
 const routes = {
   '/summary': summary,
   '/stats': { requests: 0, requestFailures: 0, turns: 0, failedTurns: 0, days: [], models: [], samples: [], grand: { input: 0, output: 0, reasoning: 0, calls: 0, failed: 0 } },
-  '/meta': { version: '2.0.0', reloadedAt: 0, reloadCount: 0, distribution: 'self', feed: { fetchedAt: 0, source: '', error: '' }, update: { available: false } },
+  '/meta': { version: '2.0.0', reloadedAt: 0, reloadCount: 0, distribution: 'self', update: { available: false } },
   '/eac/status': summary.eacAuth,
   '/chan-gateway': { relay: { enabled: true, running: true, host: '127.0.0.1', port: 18326, hasKey: true, error: '' }, gateway: { port: 8326, enabledByEnv: true, keyFound: true, keyFromEnv: false, keyPath: 'x' } },
-  '/announcement': { version: 'x', acknowledged: true },
-  '/announcements': { items: [], unread: 0, fetchedAt: 0, notifyOs: false },
 }
 globalThis.fetch = url => {
   const path = String(url).replace(/^.*?\/api\/our-free-model/, '').split('?')[0]

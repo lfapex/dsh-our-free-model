@@ -48,7 +48,7 @@ node scripts/build-manifest.mjs --check
 git tag -a v1.2.3 -m "…" && git push origin v1.2.3
 gh release create v1.2.3 --title "…" --notes-file …
 # 5. purge CDN 缓存——整棵 @main，不只是 feed 那两个文件（原因见下一节）
-curl "https://purge.jsdelivr.net/gh/Ebony-Vinyl/dsh-our-free-model@main"
+curl "https://purge.jsdelivr.net/gh/lfapex/dsh-our-free-model@main"
 # 6. 以「已安装用户」的身份复核发布产物：下载清单、逐文件校验字节数与 SHA-256、再回读
 node scripts/live-audit.mjs          # 打印 OK 才算发出去；FAIL 就按它给的提示处置
 ```
@@ -109,7 +109,7 @@ revision 再提交，HEAD 又前移——逻辑上无解。改比"最近一次�
 ## 固定提交取件与旧客户端过渡（issue #120）
 
 新版升级器将默认更新 URL 用于发现版本；实际下载前通过 GitHub 官方
-`/repos/Ebony-Vinyl/dsh-our-free-model/commits/<ref>` 解析完整 40 位 commit SHA，
+`/repos/lfapex/dsh-our-free-model/commits/<ref>` 解析完整 40 位 commit SHA，
 再从 `raw.githubusercontent.com/<repo>/<sha>/feed/manifest.json` 或
 `cdn.jsdelivr.net/gh/<repo>@<sha>/feed/manifest.json` 下载签名清单。
 清单的相对 `base` 从这个固定 URL 解析，全部文件因此来自同一提交。
@@ -239,7 +239,7 @@ node scripts/build-manifest.mjs --check
 git tag -a v1.2.3 -m "…" && git push origin v1.2.3
 gh release create v1.2.3 --title "…" --notes-file …
 # 5. purge the CDN — the whole @main tree, not only the two feed files (see below)
-curl "https://purge.jsdelivr.net/gh/Ebony-Vinyl/dsh-our-free-model@main"
+curl "https://purge.jsdelivr.net/gh/lfapex/dsh-our-free-model@main"
 # 6. re-verify as an installed user would: download the manifest, check every file's
 #    byte count and SHA-256, then read the staged copy back
 node scripts/live-audit.mjs          # publishing is done when this prints OK

@@ -215,23 +215,42 @@ check('the next honest round hides them again', (await advertised(ROUTE_MAIN)).i
 // is NaN, and a timer armed with NaN fires once a millisecond — a whole catalog
 // probe per second against a lane the plugin exists not to hammer; the same 0 on
 // the output ceiling is `min(capacity, 0)`, i.e. every turn cut to the floor.
-await callRoute(api(), 'POST', '/api/our-free-model/settings', { probeIntervalMinutes: 22, feedPollMinutes: 44, defaultMaxTokens: 20000 })
-check('a real value is taken as given', readSettings(), [22, 44, 20000])
-await callRoute(api(), 'POST', '/api/our-free-model/settings', { probeIntervalMinutes: 'abc', feedPollMinutes: 0, defaultMaxTokens: 0 })
-check('a cleared or nonsense field falls back to what was there, not to an extreme', readSettings(), [22, 44, 20000])
+await callRoute(api(), 'POST', '/api/our-free-model/settings', { probeIntervalMinutes: 22, defaultMaxTokens: 20000 })
+check('a real value is taken as given', readSettings(), [22, 20000])
+await callRoute(api(), 'POST', '/api/our-free-model/settings', { probeIntervalMinutes: 'abc', defaultMaxTokens: 0 })
+check('a cleared or nonsense field falls back to what was there, not to an extreme', readSettings(), [22, 20000])
 
 function readSettings() {
   const row = JSON.parse(fs.readFileSync(path.join(scratch, 'our-free-model', 'settings.json'), 'utf8'))
-  return [row.probeIntervalMinutes, row.feedPollMinutes, row.defaultMaxTokens]
+  return [row.probeIntervalMinutes, row.defaultMaxTokens]
 }
 
-// The ack version rides a query string with no length limit of its own and lands
-// in settings.json beside every other setting; nothing downstream ever compares
-// more than a version id, so the write is capped on the way in rather than
-// letting a caller pick the file's shape.
-await callRoute(api(), 'POST', `/api/our-free-model/announcement/ack?version=${'v'.repeat(4096)}`)
-const ackedVersion = JSON.parse(fs.readFileSync(path.join(scratch, 'our-free-model', 'settings.json'), 'utf8')).announcementAck
-check('an oversized ack version is capped before it reaches disk', typeof ackedVersion === 'string' && ackedVersion.length <= 64, true)
+// The relay Base URL and key land in settings.json beside every other setting,
+// and both are set by an operator typing them. A URL with embedded credentials
+// (`https://user:pass@host`) is refused outright: the plugin logs its own
+// requests, and a credential that rides a URL ends up in that log. The key
+// itself is never echoed back by any route, so a reader of settings.json is the
+// only place it exists — which is the same discipline the forward key keeps.
+const hostileBase = await callRoute(api(), 'POST', '/api/our-free-model/settings', { eacGateway: { enabled: true, baseUrl: 'https://user:pass@relay.example.com/v1', apiKey: 'sk-test' } })
+check('a relay URL carrying credentials is refused', hostileBase.status, 400)
+check('and plain http to a public host is refused too', (await callRoute(api(), 'POST', '/api/our-free-model/settings', { eacGateway: { enabled: true, baseUrl: 'http://relay.example.com/v1', apiKey: 'sk-test' } })).status, 400)
+check('nothing was written for either', JSON.parse(fs.readFileSync(path.join(scratch, 'our-free-model', 'settings.json'), 'utf8')).eacGateway?.baseUrl ?? '', '')
+check('and enabling without a key is refused', (await callRoute(api(), 'POST', '/api/our-free-model/settings', { eacGateway: { enabled: true, baseUrl: 'https://relay.example.com/v1' } })).status, 400)
+
+const accepted = await callRoute(api(), 'POST', '/api/our-free-model/settings', { eacGateway: { enabled: true, baseUrl: 'https://relay.example.com/v1/', apiKey: 'sk-test-key' } })
+check('a complete relay config is accepted', accepted.status, 200)
+check('with the trailing slash trimmed', JSON.parse(fs.readFileSync(path.join(scratch, 'our-free-model', 'settings.json'), 'utf8')).eacGateway.baseUrl, 'https://relay.example.com/v1')
+const view = accepted.json?.settings?.eacGateway
+check('and the answer reports the key as present without echoing it', [view?.enabled, view?.hasKey, view?.baseUrl, view?.hasApiKey ?? null], [true, true, 'https://relay.example.com/v1', null])
+check('so no byte of the key leaves through the settings route', JSON.stringify(accepted.json).includes('sk-test-key'), false)
+// A save that carries no key means "keep the stored one" — the page never gets
+// the value back, so a blank field must not wipe it.
+const keepKey = await callRoute(api(), 'POST', '/api/our-free-model/settings', { eacGateway: { enabled: true, baseUrl: 'https://relay.example.com/v1', apiKey: '' } })
+check('an empty key field keeps the stored key', [keepKey.status, JSON.parse(fs.readFileSync(path.join(scratch, 'our-free-model', 'settings.json'), 'utf8')).eacGateway.apiKey], [200, 'sk-test-key'])
+check('turning it off does not wipe the credentials either', [
+  (await callRoute(api(), 'POST', '/api/our-free-model/settings', { eacGateway: { enabled: false } })).status,
+  JSON.parse(fs.readFileSync(path.join(scratch, 'our-free-model', 'settings.json'), 'utf8')).eacGateway,
+].map(value => typeof value === 'object' ? { ...value, apiKey: value?.apiKey === 'sk-test-key' ? 'kept' : 'lost' } : value), [200, { enabled: false, baseUrl: 'https://relay.example.com/v1', apiKey: 'kept' }])
 
 // The forward listener spends this machine's free lane, so it binds loopback and
 // nothing else: a routable address in the settings file would put the whole

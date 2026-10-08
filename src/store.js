@@ -60,7 +60,7 @@ export class JsonStore {
     } catch {
       // Absent is normal; unreadable is not. Keep the damaged file: without this
       // the next scheduled flush renames a fresh default over it and the user's
-      // settings — the forward key, the acknowledged announcements — are gone with
+      // settings — the forward key, the relay credentials — are gone with
       // nothing on disk to recover and nothing in the log to explain.
       try {
         if (fs.existsSync(this.file)) fs.copyFileSync(this.file, `${this.file}.corrupt-${Date.now()}`)
@@ -181,21 +181,19 @@ export const SETTINGS_INITIAL = {
   defaultMaxTokens: 32768,
   /** 所有模型默认允许一次纯推理检查点续写，false 可关闭。 */
   streamRecovery: true,
-  /** Acknowledged announcement copy version. */
-  announcementAck: '',
   /** Last full catalog refresh timestamp. */
   catalogSyncedAt: 0,
-  /** Owner override for the announcement/update feed location. `{repo}` expands
-   *  to the plugin repository slug; empty means the shipped GitHub sources. */
-  feedUrl: '',
-  /** Minutes between announcement-feed polls; floored at 5. */
-  feedPollMinutes: 30,
-  /** Raise OS-level notifications for new announcements and updates (the
-   *  browser asks for permission on the user's click). */
-  notifyOs: false,
-  /** Announcement ids the user has acknowledged. */
-  announcementsAcked: [],
-  /** Hours between automatic update checks; 0 disables them entirely. */
+  /**
+   * A user-operated OpenAI-compatible relay that replaces the sealed co-paid
+   * lane when enabled: `baseUrl` is the relay's mount (…/v1), `apiKey` its
+   * bearer. Off by default — the lane falls back to the sealed credential and
+   * its host gate. The key is stored as given but never echoed (see
+   * `eacGatewayView` in index.js).
+   */
+  eacGateway: { enabled: false, baseUrl: '', apiKey: '' },
+  /** Minutes between update checks; 0 disables them. The poll itself runs every
+   *  30 minutes regardless (the cadence the announcement poll used to own), so
+   *  this value is what the settings page shows, not the period it arms. */
   updateCheckHours: 6,
   /** Version whose update availability has already been pushed. */
   updateNotifiedFor: '',
@@ -203,9 +201,9 @@ export const SETTINGS_INITIAL = {
   autoReloadWatch: false,
   /** Who owns the installed bytes: `self` updates in-app from the repository;
    *  `managed` — written by a distribution pack's installer, or passed as the
-   *  bundle config `distribution` — stands the self-updater, the announcement
-   *  feed and the hot reload down. The settings API never accepts this field,
-   *  so an install that shipped managed stays managed. */
+   *  bundle config `distribution` — stands the self-updater and the hot reload
+   *  down. The settings API never accepts this field, so an install that
+   *  shipped managed stays managed. */
   distribution: 'self',
   /** When the running code was hot-reloaded into place, and how many times. */
   reloadedAt: 0,
